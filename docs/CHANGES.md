@@ -1,1 +1,1 @@
-- Fixed - [release.yml]
+- Added - [.pkgmeta]
