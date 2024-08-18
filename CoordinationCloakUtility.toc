@@ -1,0 +1,15 @@
+## Interface: 110002
+## Version: 1.0.0
+## Title: - |cff05dffaC|r|cffffffffoordination|r |cff05dffaC|r|cffffffffloak|r |cff05dffaU|r|cfffffffftility!|r - |cff8080ff1.0.0|r 
+## Notes: Coordination Cloak Made Easy!  |n|r  |cff05dffa/equipcoord -|r Use AddOn!  |n|r   |cff05dffaBy Uivi US-BleedingHollow|r
+## Author: DonnieDice
+## Email: donniedice@protonmail.com
+## IconTexture: Interface\AddOns\CoordinationCloakUtility\images\icon
+
+## X-Category: UI Media, Questing & Leveling, Audio & Video, Miscellaneous
+## X-Website: https://github.com/donniedice/CoordinationCloakUtility
+## X-Curse-Project-ID: 
+## X-Wago-ID: 
+## X-WoWI-ID: 
+
+data\core.lua
