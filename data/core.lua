@@ -88,7 +88,7 @@ local function OnCloakUsed()
     reequipping = true
 
     -- Countdown to re-equip original cloak
-    local secondsRemaining = 8
+    local secondsRemaining = 11
     C_Timer.NewTicker(1, function(ticker)
         if secondsRemaining > 0 then
             print("Re-equipping original cloak in " .. secondsRemaining .. " seconds...")

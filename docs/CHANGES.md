@@ -1,1 +1,2 @@
-- Added - [.pkgmeta]
+- Fixed - [release.yml]
+- Changed - 8 seconds to 11 seconds - [core.lua]
