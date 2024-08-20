@@ -3,6 +3,7 @@
 ## Overview
 **Coordination Cloak Utility** simplifies the use of the Cloak of Coordination and Wrap of Unity in World of Warcraft. Automatically equip your teleportation cloak and re-equip your original cloak after teleportation.
 
+
 ---
 
 ## Features
@@ -14,7 +15,7 @@
 ---
 
 ## Compatibility
-
+- **The War Within**
 ---
 
 ## Installation
@@ -22,13 +23,24 @@
 2. Extract the file to your World of Warcraft `Interface/AddOns` directory:
    - For **Retail**: `World of Warcraft/_retail_/Interface/AddOns`
 3. Restart World of Warcraft and enable the addon in the AddOns menu.
+---
 
+## Suggested Macro
+You can use the following macro to easily activate the Coordination Cloak Utility addon and display the Cloak of Coordination tooltip:
+
+`#showtooltip Cloak of Coordination`
+
+`/equipcoord`
+
+![](https://github.com/donniedice/CoordinationCloakUtility/blob/main/images/MakeMacro.gif)
+![](https://github.com/donniedice/CoordinationCloakUtility/blob/main/images/UseMacro.gif)
+![](https://github.com/donniedice/CoordinationCloakUtility/blob/main/images/ChatLog.gif)
 ---
 
 ## Support the Project
 
 ### ☕️ Buy Me a Coffee
-If you found this addon helpful, consider buying me a coffee to support its development!
+If you found this project helpful or enjoyable, you can support my work by buying me a coffee. Your support keeps this project alive and motivates me to create more!
 
 [![Buy Me a Coffee](https://img.shields.io/badge/☕️-Buy%20Me%20a%20Coffee-orange?style=flat-square&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/donniedice)
 
@@ -36,6 +48,7 @@ If you found this addon helpful, consider buying me a coffee to support its deve
 - 🛠️ Maintain and improve the project.
 - 🚀 Add new features.
 - 🐛 Fix bugs.
+- 📚 Write detailed documentation.
 
 Thank you for your support! 🙏
 
@@ -46,5 +59,5 @@ Thank you for your support! 🙏
 - Follow me on [GitHub](https://github.com/donniedice) 🐙
 
 ### ⭐️ Show Your Support:
-- Star this project on [GitHub](https://github.com/donniedice/CoordinationCloakUtility) ⭐️
+- Star this project on [GitHub](https://github.com/donniedice/BLU) ⭐️
 - Share it with your friends and colleagues 📢
