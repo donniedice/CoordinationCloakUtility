@@ -1,3 +1,7 @@
+v2.0.1-------------------------------------------------------------------
+- Fixed - [release.yml]
+- Removed - [MakeMacro.gif] - [/images]
+- Removed - [UseMacro.gif] - [/images]
 v2.0.0-------------------------------------------------------------------
 - Fixed - Replaced timer with spell cast tracking for cloak re-equipping - [core.lua]
 - Fixed - Corrected spell ID handling for Cloak of Coordination teleport (ID: 89158) to ensure original cloak re-equips properly - [core.lua]

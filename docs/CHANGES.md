@@ -1,8 +1,3 @@
-- Fixed - Replaced timer with spell cast tracking for cloak re-equipping - [core.lua]
-- Fixed - Corrected spell ID handling for Cloak of Coordination teleport (ID: 89158) to ensure original cloak re-equips properly - [core.lua]
-- Fixed - Secure button visibility to only show if Cloak of Coordination is equipped - [core.lua]
-- Fixed - Proper handling when cloak is on cooldown; added concise chat error messages with color highlights - [core.lua]
-- Updated - README.md to include the new GIFs for visual guidance
-- Added - [ChatLog.gif] - [/images]
-- Added - [MakeMacro.gif] - [/images]
-- Added - [UseMacro.gif] - [/images]
+- Fixed - [release.yml]
+- Removed - [MakeMacro.gif] - [/images]
+- Removed - [UseMacro.gif] - [/images]

@@ -33,8 +33,6 @@ You can use the following macro to easily activate the Coordination Cloak Utilit
 `/equipcoord`
 
 ![](https://github.com/donniedice/CoordinationCloakUtility/blob/main/images/MakeMacro.gif)
-![](https://github.com/donniedice/CoordinationCloakUtility/blob/main/images/UseMacro.gif)
-![](https://github.com/donniedice/CoordinationCloakUtility/blob/main/images/ChatLog.gif)
 ---
 
 ## Support the Project
