@@ -1,3 +1,6 @@
+v2.0.4-------------------------------------------------------------------
+- Fixed - Brackets on "[CCU]" prefix - [core.lua]
+- Fixed - [release.yml]
 v2.0.3-------------------------------------------------------------------
 - Added - Color-coded original cloak name in re-equipping log message - [core.lua]
 - Added - Colorful login message to guide players on how to use the addon - [core.lua]

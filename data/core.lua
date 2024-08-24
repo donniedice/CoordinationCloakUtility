@@ -28,7 +28,7 @@ local cloakNames = {
     [63353] = "|cff2ecc71Horde Shroud of Cooperation|r",
 }
 
-local CCU_PREFIX = "|cff950041CCU|r "
+local CCU_PREFIX = "[|cff950041CCU|r] "
 
 -- Function to save the original cloak before equipping the teleportation cloak
 local function SaveOriginalCloak()

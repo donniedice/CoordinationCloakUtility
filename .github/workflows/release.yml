@@ -9,7 +9,7 @@ env:
   CF_API_KEY: ${{ secrets.CF_API_KEY }}
   WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
   WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   release:
@@ -30,30 +30,20 @@ jobs:
         run: |
           TAG_NAME=${{ github.ref }}
           if [[ "$TAG_NAME" == *"beta"* ]]; then
-            echo "release_type=beta" >> $GITHUB_ENV
+            echo "::set-output name=release_type::beta"
           elif [[ "$TAG_NAME" == *"alpha"* ]]; then
-            echo "release_type=alpha" >> $GITHUB_ENV
+            echo "::set-output name=release_type::alpha"
           else
-            echo "release_type=release" >> $GITHUB_ENV
+            echo "::set-output name=release_type::release"
+          fi
 
       - name: Extract Version from TOC
         id: extract_version
         run: |
           version=$(grep -oP '^## Version: \K(.*)' ./*.toc)
-          echo "version=$version" >> $GITHUB_ENV
+          echo "::set-output name=version::$version"
 
       - name: Package and Release
         uses: BigWigsMods/packager@master
         with:
-          release-type: ${{ env.release_type }}
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body_path: docs/CHANGES.md
-          draft: false
-          prerelease: ${{ env.release_type != 'release' }}
+          release-type: ${{ steps.set_release_type.outputs.release_type }}
