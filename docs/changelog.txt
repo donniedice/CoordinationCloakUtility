@@ -1,11 +1,21 @@
+v2.0.5-------------------------------------------------------------------
+- Updated - Combined `cloakIDs` and `cloakNames` into a single `cloaks` table for improved maintainability - [core.lua]
+- Updated - Refactored functions to use the new combined `cloaks` table structure - [core.lua]
+- Updated - Improved the CCU prefix to include an icon for enhanced visibility - [core.lua]
+- Fixed - Improved re-equipping logic to ensure the original cloak is only cleared after successful re-equip - [core.lua]
+- Fixed - Adjusted button visibility and secure button creation for better reliability - [core.lua]
+- Fixed - Corrected slash command registration for `/ccu` and updated the login message to reflect the correct command - [core.lua]
+
 v2.0.4-------------------------------------------------------------------
 - Fixed - Brackets on "[CCU]" prefix - [core.lua]
 - Fixed - [release.yml]
+
 v2.0.3-------------------------------------------------------------------
 - Added - Color-coded original cloak name in re-equipping log message - [core.lua]
 - Added - Colorful login message to guide players on how to use the addon - [core.lua]
 - Updated - Removed 1.5-second delay for equipping cloak - [core.lua]
 - Fixed - [release.yml]
+
 v2.0.2-------------------------------------------------------------------
 - Added - Color-coding for cloak names in chat logs: Coordination (purple), Unity (blue), Cooperation (green) - [core.lua]
 - Added - Error handling for cloaks when on cooldown: Coordination, Unity, and Cooperation - [core.lua]
@@ -17,10 +27,12 @@ v2.0.2-------------------------------------------------------------------
 - Fixed - Stopped further checks if any cloak is on cooldown, ensuring accurate messaging and behavior - [core.lua]
 - Fixed - Cloak button visibility updates correctly when the teleportation cloak is unequipped - [core.lua]
 - Fixed - Log output now displays the name of the equipped cloak with appropriate color - [core.lua]
+
 v2.0.1-------------------------------------------------------------------
 - Fixed - [release.yml]
 - Removed - [MakeMacro.gif] - [/images]
 - Removed - [UseMacro.gif] - [/images]
+
 v2.0.0-------------------------------------------------------------------
 - Fixed - Replaced timer with spell cast tracking for cloak re-equipping - [core.lua]
 - Fixed - Corrected spell ID handling for Cloak of Coordination teleport (ID: 89158) to ensure original cloak re-equips properly - [core.lua]
@@ -30,14 +42,19 @@ v2.0.0-------------------------------------------------------------------
 - Added - [ChatLog.gif] - [/images]
 - Added - [MakeMacro.gif] - [/images]
 - Added - [UseMacro.gif] - [/images]
+
 v1.0.3-------------------------------------------------------------------
 - Fixed - [release.yml]
+
 v1.0.2-------------------------------------------------------------------
 - Fixed - [release.yml]
 - Changed - 8 seconds to 11 seconds - [core.lua]
+
 v1.0.2-------------------------------------------------------------------
 - Added - [.pkgmeta]
+
 v1.0.1-------------------------------------------------------------------
 - Fixed - [release.yml]
+
 v1.0.0-------------------------------------------------------------------
 - Create Repository - Initial Push

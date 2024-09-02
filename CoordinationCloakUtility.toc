@@ -1,9 +1,10 @@
 ## Interface: 110002
-## Version: 2.0.4
-## Title: - |cff950041C|r|cffffffffoordination|r |cff950041C|r|cffffffffloak|r |cff950041U|r|cfffffffftility!|r - |cff8080ff2.0.4|r 
+## Version: v2.0.5
+## Title: - |cff950041C|r|cffffffffoordination|r |cff950041C|r|cffffffffloak|r |cff950041U|r|cfffffffftility!|r - |cff8080ffv2.0.5|r 
 ## Notes: Coordination Cloak Made Easy!  |n|r  |cff950041/equipcoord -|r Use AddOn!  |n|r   |cff950041By Uivi US-BleedingHollow|r
 ## Author: DonnieDice
 ## Email: donniedice@protonmail.com
+## SavedVariables: CCUDB
 ## IconTexture: Interface\AddOns\CoordinationCloakUtility\images\icon
 
 ## X-Category: UI Media, Questing & Leveling, Audio & Video, Miscellaneous
