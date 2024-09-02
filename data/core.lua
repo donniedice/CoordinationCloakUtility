@@ -2,6 +2,7 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 
 local originalCloak = nil
 local reequipping = false
@@ -79,12 +80,20 @@ end
 -- Function to handle re-equipping the original cloak
 local function ReequipOriginalCloak()
     if originalCloak then
+        local backSlotID = GetInventorySlotInfo("BackSlot")
+        if GetInventoryItemID("player", backSlotID) == originalCloak then
+            print(CCU_PREFIX .. "|cff00ff00Original cloak is already equipped.|r")
+            originalCloak = nil -- Clear original cloak since it's already equipped
+            reequipping = false -- Reset reequipping flag
+            secureButton:Hide()  -- Ensure the button hides after re-equipping
+            return
+        end
+
         EquipItemByName(originalCloak)
         print(CCU_PREFIX .. L.REEQUIP_CLOAK .. string.format("%s%s|r", "|cff8080ff", GetItemInfo(originalCloak) or originalCloak))
 
         -- Double check after 1.5 seconds to ensure the original cloak was re-equipped
         C_Timer.After(1.5, function()
-            local backSlotID = GetInventorySlotInfo("BackSlot")
             if GetInventoryItemID("player", backSlotID) ~= originalCloak then
                 EquipItemByName(originalCloak)
                 print(CCU_PREFIX .. "|cffff0000Retrying to re-equip original cloak.|r")
@@ -113,6 +122,7 @@ local function ReequipOriginalCloak()
     secureButton:Hide()  -- Ensure the button hides after re-equipping
 end
 
+
 -- Function to create the secure button for manual cloak use
 local function CreateSecureButton()
     secureButton = CreateFrame("Button", "CloakUseButton", UIParent, "SecureActionButtonTemplate")
@@ -126,7 +136,7 @@ local function CreateSecureButton()
     secureButton:RegisterForClicks("AnyUp")
     secureButton:SetScript("PostClick", function()
         reequipping = true   -- Set reequipping flag to true
-        -- Do not immediately re-equip, wait for PLAYER_LOGIN or PLAYER_ENTERING_WORLD event
+        -- Do not immediately re-equip, wait for PLAYER_LOGIN, PLAYER_ENTERING_WORLD, or UNIT_SPELLCAST_SUCCEEDED event
     end)
     secureButton:Hide()
 end
@@ -260,6 +270,12 @@ local function OnPlayerEquipmentChanged()
     secureButton:Hide()
 end
 
+local function OnSpellcastSucceeded(unit)
+    if unit == "player" and reequipping then
+        ReequipOriginalCloak()
+    end
+end
+
 -- Register events
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
@@ -268,5 +284,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         OnPlayerEquipmentChanged()
     elseif event == "PLAYER_ENTERING_WORLD" then
         OnPlayerEnteringWorld()
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+        OnSpellcastSucceeded(...)
     end
 end)

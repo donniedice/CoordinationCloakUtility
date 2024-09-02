@@ -1,3 +1,5 @@
-- Updated - Delayed re-equipping of the original cloak to occur after `PLAYER_LOGIN` and `PLAYER_ENTERING_WORLD` events, ensuring proper handling post-cast and during world transitions - [core.lua]
-- Fixed - Prevented premature execution of the re-equipping function immediately after pressing the button - [core.lua]
-- Fixed - Refined event handling to avoid re-equipping the original cloak too early and to handle load screens more reliably - [core.lua]
+- Added - Trigger to re-equip the original cloak upon any successful spell cast, ensuring cloak re-equipping even when teleporting to the same location - [core.lua]
+- Updated - Integrated the `UNIT_SPELLCAST_SUCCEEDED` event handler to complement existing event triggers for improved reliability - [core.lua]
+- Updated - [README.md] to reflect changes in functionality and event handling logic
+- Fixed - Ensured the `reequipping` flag is properly managed across multiple event triggers to prevent premature re-equipping - [core.lua]
+- Fixed - Added a check to prevent re-equipping the original cloak if it is already equipped, reducing redundant operations - [core.lua]
