@@ -1,9 +1,3 @@
-v2.0.5-------------------------------------------------------------------
-- Added - Icon to the CCU prefix for improved visibility - [core.lua]
-- Added - `/ccu help` command to display a list of available commands and descriptions - [core.lua]
-- Fixed - Adjusted button visibility and secure button creation for better reliability - [core.lua]
-- Fixed - Corrected slash command registration for `/ccu` and updated the login message to reflect the correct command - [core.lua]
-- Fixed - Improved re-equipping logic to ensure the original cloak is only cleared after successful re-equip - [core.lua]
-- Fixed - Resolved an issue where the welcome message toggle was not saving its state properly across sessions - [core.lua]
-- Updated - Combined `cloakIDs` and `cloakNames` into a single `cloaks` table for improved maintainability - [core.lua]
-- Updated - Refactored functions to use the new combined `cloaks` table structure - [core.lua]
+- Updated - Delayed re-equipping of the original cloak to occur after `PLAYER_LOGIN` and `PLAYER_ENTERING_WORLD` events, ensuring proper handling post-cast and during world transitions - [core.lua]
+- Fixed - Prevented premature execution of the re-equipping function immediately after pressing the button - [core.lua]
+- Fixed - Refined event handling to avoid re-equipping the original cloak too early and to handle load screens more reliably - [core.lua]

@@ -1,7 +1,7 @@
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 local originalCloak = nil
 local reequipping = false
@@ -38,40 +38,12 @@ local L = {
     HELP_WELCOME = " |cffdd0064/ccu welcome|r - Toggles the welcome message on/off.",
     HELP_HELP = " |cffdd0064/ccu help|r - Displays this help message.",
     UNKNOWN_COMMAND = string.format("%sUnknown command. Type %s/ccu help|r for a list of commands.", "|cffffcc00", CCU_PREFIX),
-    DETECTED_SPELL_CAST = string.format("%sDetected Cloak of Coordination spell cast.|r", "|cff00ff00"),
-    WELCOME_MSG_ENABLED = string.format("%sWelcome message enabled.|r", "|cff00ff00"),
-    WELCOME_MSG_DISABLED = string.format("%sWelcome message disabled.|r", "|cffff0000"),
     CLOAK_ON_CD = string.format("%s is equipped but on cooldown.|r", "|cffff0000"),
     NO_USABLE_CLOAK = string.format("%sNo usable teleportation cloak found or all are on cooldown.|r", "|cffff0000"),
 }
 
 -- Version Number
 local VersionNumber = string.format("%s%s|r", "|cff8080ff", C_AddOns.GetAddOnMetadata("CoordinationCloakUtility", "Version"))
-
--- Function to handle re-equipping the original cloak
-local function ReequipOriginalCloak()
-    if originalCloak then
-        EquipItemByName(originalCloak)
-        print(CCU_PREFIX .. L.REEQUIP_CLOAK .. string.format("%s%s|r", "|cff8080ff", GetItemInfo(originalCloak) or originalCloak))
-
-        -- Double check after 1.5 seconds to ensure the original cloak was re-equipped
-        C_Timer.After(1.5, function()
-            local backSlotID = GetInventorySlotInfo("BackSlot")
-            if GetInventoryItemID("player", backSlotID) ~= originalCloak then
-                EquipItemByName(originalCloak)
-                print(CCU_PREFIX .. "|cffff0000Retrying to re-equip original cloak.|r")
-            else
-                print(CCU_PREFIX .. "|cff00ff00Original cloak re-equipped successfully.|r")
-                originalCloak = nil -- Clear original cloak after successful re-equipping
-                reequipping = false -- Reset reequipping flag
-            end
-        end)
-    else
-        print(CCU_PREFIX .. L.NO_CLOAK_REEQUIP)
-        reequipping = false -- Reset reequipping flag even if no original cloak
-    end
-    secureButton:Hide()  -- Ensure the button hides after re-equipping
-end
 
 -- Function to save the original cloak before equipping the teleportation cloak
 local function SaveOriginalCloak()
@@ -104,6 +76,43 @@ local function GetAvailableCloakID()
     return nil
 end
 
+-- Function to handle re-equipping the original cloak
+local function ReequipOriginalCloak()
+    if originalCloak then
+        EquipItemByName(originalCloak)
+        print(CCU_PREFIX .. L.REEQUIP_CLOAK .. string.format("%s%s|r", "|cff8080ff", GetItemInfo(originalCloak) or originalCloak))
+
+        -- Double check after 1.5 seconds to ensure the original cloak was re-equipped
+        C_Timer.After(1.5, function()
+            local backSlotID = GetInventorySlotInfo("BackSlot")
+            if GetInventoryItemID("player", backSlotID) ~= originalCloak then
+                EquipItemByName(originalCloak)
+                print(CCU_PREFIX .. "|cffff0000Retrying to re-equip original cloak.|r")
+                
+                -- Third check after another 1.5 seconds
+                C_Timer.After(1.5, function()
+                    if GetInventoryItemID("player", backSlotID) ~= originalCloak then
+                        EquipItemByName(originalCloak)
+                        print(CCU_PREFIX .. "|cffff0000Final attempt to re-equip original cloak.|r")
+                    else
+                        print(CCU_PREFIX .. "|cff00ff00Original cloak re-equipped successfully.|r")
+                        originalCloak = nil -- Clear original cloak after successful re-equipping
+                        reequipping = false -- Reset reequipping flag
+                    end
+                end)
+            else
+                print(CCU_PREFIX .. "|cff00ff00Original cloak re-equipped successfully.|r")
+                originalCloak = nil -- Clear original cloak after successful re-equipping
+                reequipping = false -- Reset reequipping flag
+            end
+        end)
+    else
+        print(CCU_PREFIX .. L.NO_CLOAK_REEQUIP)
+        reequipping = false -- Reset reequipping flag even if no original cloak
+    end
+    secureButton:Hide()  -- Ensure the button hides after re-equipping
+end
+
 -- Function to create the secure button for manual cloak use
 local function CreateSecureButton()
     secureButton = CreateFrame("Button", "CloakUseButton", UIParent, "SecureActionButtonTemplate")
@@ -116,8 +125,8 @@ local function CreateSecureButton()
     
     secureButton:RegisterForClicks("AnyUp")
     secureButton:SetScript("PostClick", function()
-        secureButton:Hide()  -- Ensure the button hides after use
         reequipping = true   -- Set reequipping flag to true
+        -- Do not immediately re-equip, wait for PLAYER_LOGIN or PLAYER_ENTERING_WORLD event
     end)
     secureButton:Hide()
 end
@@ -206,7 +215,7 @@ local function OnPlayerLogin()
     SlashCmdList["CCU"] = HandleSlashCommands
 
     CreateSecureButton()
-    
+
     -- Load the saved setting for the welcome message
     if CCUDB == nil then
         CCUDB = {}
@@ -220,6 +229,18 @@ local function OnPlayerLogin()
     if CCUDB.showWelcomeMessage then
         print(CCU_PREFIX .. L.WELCOME_MSG)
         print(CCU_PREFIX .. L.VERSION .. VersionNumber)
+    end
+
+    -- Attempt to re-equip the original cloak on login
+    if reequipping then
+        ReequipOriginalCloak()
+    end
+end
+
+local function OnPlayerEnteringWorld()
+    -- Backup attempt to re-equip the original cloak after loading screens
+    if reequipping then
+        ReequipOriginalCloak()
     end
 end
 
@@ -239,38 +260,13 @@ local function OnPlayerEquipmentChanged()
     secureButton:Hide()
 end
 
-local function OnSpellcastSucceeded(unit, _, spellID)
-    if unit == "player" and spellID == 89158 then -- Cloak of Coordination spell ID
-        print(CCU_PREFIX .. L.DETECTED_SPELL_CAST)
-        
-        if reequipping then
-            -- Initial attempt to re-equip the original cloak
-            ReequipOriginalCloak()
-            
-            -- Secondary check after a delay (e.g., 3 seconds) to handle any load screen delays
-            C_Timer.After(3, function()
-                local backSlotID = GetInventorySlotInfo("BackSlot")
-                if GetInventoryItemID("player", backSlotID) ~= originalCloak then
-                    print(CCU_PREFIX .. "|cffff0000Load screen detected, re-attempting to re-equip original cloak.|r")
-                    ReequipOriginalCloak()
-                else
-                    print(CCU_PREFIX .. "|cff00ff00Original cloak successfully re-equipped after load screen.|r")
-                    reequipping = false -- Ensure the flag is reset after successful re-equipping
-                end
-            end)
-        else
-            print(CCU_PREFIX .. "|cffff0000Unexpected state: reequipping flag was not set.|r")
-        end
-    end
-end
-
 -- Register events
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
         OnPlayerLogin()
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         OnPlayerEquipmentChanged()
-    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        OnSpellcastSucceeded(...)
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        OnPlayerEnteringWorld()
     end
 end)
