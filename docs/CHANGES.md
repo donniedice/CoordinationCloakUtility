@@ -1,5 +1,2 @@
-- Added - Trigger to re-equip the original cloak upon any successful spell cast, ensuring cloak re-equipping even when teleporting to the same location - [core.lua]
-- Updated - Integrated the `UNIT_SPELLCAST_SUCCEEDED` event handler to complement existing event triggers for improved reliability - [core.lua]
-- Updated - [README.md] to reflect changes in functionality and event handling logic
-- Fixed - Ensured the `reequipping` flag is properly managed across multiple event triggers to prevent premature re-equipping - [core.lua]
-- Fixed - Added a check to prevent re-equipping the original cloak if it is already equipped, reducing redundant operations - [core.lua]
+- Fixed - Resetting of the `originalCloak` variable when the `/ccu` command is used, ensuring that the currently equipped cloak is always saved as the new original cloak - [core.lua]
+- Updated - Enhanced the handling of re-equipping logic to correctly handle scenarios where the original cloak is manually changed between uses of `/ccu` - [core.lua]

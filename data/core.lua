@@ -163,7 +163,6 @@ local function EquipAndUseCloak(cloakID, cloakName)
 
             -- Second delayed check after retrying
             C_Timer.After(0.5, function()
-                local backSlotID = GetInventorySlotInfo("BackSlot")
                 if GetInventoryItemID("player", backSlotID) == cloakID then
                     print(CCU_PREFIX .. L.SUCCESS_EQUIP)
                 else
@@ -180,7 +179,12 @@ local function HandleCloakUse()
         print(CCU_PREFIX .. "|cffff0000Reequipping is already in progress. Please wait.|r")
         return
     end
+    
+    -- Reset the original cloak before saving the new one
+    originalCloak = nil
+    
     SaveOriginalCloak() -- Ensure the original cloak is saved before equipping
+    
     local cloakID, cloakName = GetAvailableCloakID()
     if cloakID then
         EquipAndUseCloak(cloakID, cloakName)
