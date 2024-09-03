@@ -9,7 +9,7 @@
 - **Automatic Detection:** Automatically detects and equips the appropriate teleportation cloak based on your faction and available cloaks in your inventory.
 - **Auto Re-Equip:** After teleportation, the addon automatically re-equips your original cloak to ensure you're always geared properly.
 - **Simple Command:** Use `/ccu` to trigger the cloak swap. The addon will handle the rest.
-- **On-Screen Button:** An optional button appears when a teleportation cloak is equipped, allowing you to manually use the cloak if desired.
+- **On-Screen Button:** A button appears when a teleportation cloak is equipped, enabling you to initiate the teleportation cast and automatically re-equip the original cloak afterward.
 
 ---
 

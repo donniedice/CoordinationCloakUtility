@@ -1,3 +1,13 @@
+v2.0.9-------------------------------------------------------------------
+- Fixed - Prevented cloak equipping during loading screens to avoid errors - [core.lua]
+- Updated - Refined cloak re-equipping logic to handle loading screen scenarios, including reattempt logic - [core.lua]
+- Fixed - Restricted script execution to active `/ccu` sessions, preventing unintended triggers - [core.lua]
+- Updated - Reset script state after execution to prevent event conflicts - [core.lua]
+- Fixed - Added item data validation and checks to ensure `EquipItemByName` only runs with fully available item data - [core.lua]
+- Restored - `EquipAndUseCloak` function to ensure proper workflow during cloak usage - [core.lua]
+- Fixed - Implemented checks to prevent re-equipping cloaks that are already equipped - [core.lua]
+- Updated - Enhanced debug information and error handling across cloak management functions - [core.lua]
+
 v2.0.8-------------------------------------------------------------------
 - Fixed - Resetting of the `originalCloak` variable when the `/ccu` command is used, ensuring that the currently equipped cloak is always saved as the new original cloak - [core.lua]
 - Updated - Enhanced the handling of re-equipping logic to correctly handle scenarios where the original cloak is manually changed between uses of `/ccu` - [core.lua]

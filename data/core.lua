@@ -1,4 +1,5 @@
 local frame = CreateFrame("Frame")
+frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -7,6 +8,8 @@ frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 local originalCloak = nil
 local reequipping = false
 local secureButton = nil
+local addonLoaded = false
+local ccuActive = false -- State variable to control script execution
 
 local cloaks = {
     { id = 65274, name = "|cff9b59b6Cloak of Coordination|r" },
@@ -79,49 +82,67 @@ end
 
 -- Function to handle re-equipping the original cloak
 local function ReequipOriginalCloak()
+    if not ccuActive then return end -- Guard against unintended triggers
+
     if originalCloak then
         local backSlotID = GetInventorySlotInfo("BackSlot")
-        if GetInventoryItemID("player", backSlotID) == originalCloak then
+        local equippedCloakID = GetInventoryItemID("player", backSlotID)
+
+        if equippedCloakID == originalCloak then
             print(CCU_PREFIX .. "|cff00ff00Original cloak is already equipped.|r")
-            originalCloak = nil -- Clear original cloak since it's already equipped
-            reequipping = false -- Reset reequipping flag
-            secureButton:Hide()  -- Ensure the button hides after re-equipping
+            originalCloak = nil
+            reequipping = false
+            secureButton:Hide()
+            ccuActive = false -- Reset state after execution
             return
         end
 
-        EquipItemByName(originalCloak)
-        print(CCU_PREFIX .. L.REEQUIP_CLOAK .. string.format("%s%s|r", "|cff8080ff", GetItemInfo(originalCloak) or originalCloak))
+        -- Ensure the item exists before attempting to equip it
+        if C_Item.DoesItemExistByID(originalCloak) then
+            local itemName, itemLink = GetItemInfo(originalCloak)
+            if itemName then
+                EquipItemByName(itemLink)
+                print(CCU_PREFIX .. L.REEQUIP_CLOAK .. string.format("%s%s|r", "|cff8080ff", itemName))
 
-        -- Double check after 1.5 seconds to ensure the original cloak was re-equipped
-        C_Timer.After(1.5, function()
-            if GetInventoryItemID("player", backSlotID) ~= originalCloak then
-                EquipItemByName(originalCloak)
-                print(CCU_PREFIX .. "|cffff0000Retrying to re-equip original cloak.|r")
-                
-                -- Third check after another 1.5 seconds
                 C_Timer.After(1.5, function()
                     if GetInventoryItemID("player", backSlotID) ~= originalCloak then
-                        EquipItemByName(originalCloak)
-                        print(CCU_PREFIX .. "|cffff0000Final attempt to re-equip original cloak.|r")
+                        EquipItemByName(itemLink)
+                        print(CCU_PREFIX .. "|cffff0000Retrying to re-equip original cloak.|r")
+                        C_Timer.After(1.5, function()
+                            if GetInventoryItemID("player", backSlotID) ~= originalCloak then
+                                EquipItemByName(itemLink)
+                                print(CCU_PREFIX .. "|cffff0000Final attempt to re-equip original cloak.|r")
+                            else
+                                print(CCU_PREFIX .. "|cff00ff00Original cloak re-equipped successfully.|r")
+                                originalCloak = nil
+                                reequipping = false
+                                ccuActive = false -- Reset state after execution
+                            end
+                        end)
                     else
                         print(CCU_PREFIX .. "|cff00ff00Original cloak re-equipped successfully.|r")
-                        originalCloak = nil -- Clear original cloak after successful re-equipping
-                        reequipping = false -- Reset reequipping flag
+                        originalCloak = nil
+                        reequipping = false
+                        ccuActive = false -- Reset state after execution
                     end
                 end)
             else
-                print(CCU_PREFIX .. "|cff00ff00Original cloak re-equipped successfully.|r")
-                originalCloak = nil -- Clear original cloak after successful re-equipping
-                reequipping = false -- Reset reequipping flag
+                print(CCU_PREFIX .. "|cffff0000Failed to re-equip original cloak: Item data is not available.|r")
+                reequipping = false
+                ccuActive = false -- Reset state after execution
             end
-        end)
+        else
+            print(CCU_PREFIX .. "|cffff0000Failed to re-equip original cloak: Item does not exist.|r")
+            reequipping = false
+            ccuActive = false -- Reset state after execution
+        end
     else
         print(CCU_PREFIX .. L.NO_CLOAK_REEQUIP)
-        reequipping = false -- Reset reequipping flag even if no original cloak
+        reequipping = false
+        ccuActive = false -- Reset state after execution
     end
-    secureButton:Hide()  -- Ensure the button hides after re-equipping
+    secureButton:Hide()
 end
-
 
 -- Function to create the secure button for manual cloak use
 local function CreateSecureButton()
@@ -135,7 +156,7 @@ local function CreateSecureButton()
     
     secureButton:RegisterForClicks("AnyUp")
     secureButton:SetScript("PostClick", function()
-        reequipping = true   -- Set reequipping flag to true
+        reequipping = true
         -- Do not immediately re-equip, wait for PLAYER_LOGIN, PLAYER_ENTERING_WORLD, or UNIT_SPELLCAST_SUCCEEDED event
     end)
     secureButton:Hide()
@@ -143,34 +164,52 @@ end
 
 -- Function to equip the teleportation cloak and show the button for use
 local function EquipAndUseCloak(cloakID, cloakName)
+    if not ccuActive then return end -- Guard against unintended triggers
+
     SaveOriginalCloak()
-    EquipItemByName(cloakID)
 
-    -- Delayed check to verify if the cloak was successfully equipped
-    C_Timer.After(0.5, function()
-        local backSlotID = GetInventorySlotInfo("BackSlot")
-        if GetInventoryItemID("player", backSlotID) == cloakID then
-            print(CCU_PREFIX .. cloakName .. L.CLOAK_EQUIPPED)
-            
-            local itemLink = select(2, GetItemInfo(cloakID))
-            secureButton:SetAttribute("type", "item")
-            secureButton:SetAttribute("item", itemLink)
-            secureButton:SetNormalTexture(GetItemIcon(cloakID))
-            secureButton:Show() -- Show the button for the user to click
-        else
-            print(CCU_PREFIX .. L.FAILED_EQUIP)
-            EquipItemByName(cloakID)
+    local backSlotID = GetInventorySlotInfo("BackSlot")
+    local equippedCloakID = GetInventoryItemID("player", backSlotID)
 
-            -- Second delayed check after retrying
-            C_Timer.After(0.5, function()
-                if GetInventoryItemID("player", backSlotID) == cloakID then
-                    print(CCU_PREFIX .. L.SUCCESS_EQUIP)
-                else
-                    print(CCU_PREFIX .. L.FINAL_FAILED_EQUIP)
-                end
-            end)
-        end
-    end)
+    if equippedCloakID == cloakID then
+        print(CCU_PREFIX .. "|cff00ff00Cloak is already equipped: " .. cloakName .. "|r")
+        secureButton:SetAttribute("type", "item")
+        secureButton:SetAttribute("item", select(2, GetItemInfo(cloakID)))
+        secureButton:SetNormalTexture(GetItemIcon(cloakID))
+        secureButton:Show()
+        return
+    end
+
+    if C_Item.DoesItemExistByID(cloakID) then
+        EquipItemByName(cloakID)
+
+        C_Timer.After(0.5, function()
+            if GetInventoryItemID("player", backSlotID) == cloakID then
+                print(CCU_PREFIX .. cloakName .. L.CLOAK_EQUIPPED)
+                
+                local itemLink = select(2, GetItemInfo(cloakID))
+                secureButton:SetAttribute("type", "item")
+                secureButton:SetAttribute("item", itemLink)
+                secureButton:SetNormalTexture(GetItemIcon(cloakID))
+                secureButton:Show()
+            else
+                print(CCU_PREFIX .. L.FAILED_EQUIP)
+                EquipItemByName(cloakID)
+
+                -- Second delayed check after retrying
+                C_Timer.After(0.5, function()
+                    if GetInventoryItemID("player", backSlotID) == cloakID then
+                        print(CCU_PREFIX .. L.SUCCESS_EQUIP)
+                    else
+                        print(CCU_PREFIX .. L.FINAL_FAILED_EQUIP)
+                    end
+                end)
+            end
+        end)
+    else
+        print(CCU_PREFIX .. "|cffff0000Failed to equip cloak: Item does not exist.|r")
+        ccuActive = false -- Reset state if item does not exist
+    end
 end
 
 -- Slash command to trigger cloak use
@@ -180,16 +219,17 @@ local function HandleCloakUse()
         return
     end
     
-    -- Reset the original cloak before saving the new one
+    ccuActive = true -- Enable script processing
     originalCloak = nil
     
-    SaveOriginalCloak() -- Ensure the original cloak is saved before equipping
+    SaveOriginalCloak()
     
     local cloakID, cloakName = GetAvailableCloakID()
     if cloakID then
         EquipAndUseCloak(cloakID, cloakName)
     else
         print(CCU_PREFIX .. L.NO_USABLE_CLOAK)
+        ccuActive = false -- Reset state if no cloak is usable
     end
 end
 
@@ -210,10 +250,10 @@ end
 
 -- Handle Slash Commands
 local function HandleSlashCommands(input)
-    input = input:trim():lower()  -- Convert input to lowercase
+    input = input:trim():lower()
 
     if input == "" then
-        HandleCloakUse()  -- Trigger cloak use when `/ccu` is used without any additional input
+        HandleCloakUse()
     elseif input == "welcome" then
         ToggleWelcomeMessage()
     elseif input == "help" then
@@ -230,35 +270,33 @@ local function OnPlayerLogin()
 
     CreateSecureButton()
 
-    -- Load the saved setting for the welcome message
     if CCUDB == nil then
         CCUDB = {}
     end
 
     if CCUDB.showWelcomeMessage == nil then
-        CCUDB.showWelcomeMessage = true -- Default to showing the welcome message if not set
+        CCUDB.showWelcomeMessage = true
     end
 
-    -- Login message
     if CCUDB.showWelcomeMessage then
         print(CCU_PREFIX .. L.WELCOME_MSG)
         print(CCU_PREFIX .. L.VERSION .. VersionNumber)
     end
 
-    -- Attempt to re-equip the original cloak on login
-    if reequipping then
+    if reequipping and ccuActive then
         ReequipOriginalCloak()
     end
 end
 
 local function OnPlayerEnteringWorld()
-    -- Backup attempt to re-equip the original cloak after loading screens
-    if reequipping then
+    if reequipping and ccuActive then
         ReequipOriginalCloak()
     end
 end
 
 local function OnPlayerEquipmentChanged()
+    if not ccuActive then return end -- Guard against unintended triggers
+
     local backSlotID = GetInventorySlotInfo("BackSlot")
     local equippedCloakID = GetInventoryItemID("player", backSlotID)
     
@@ -270,12 +308,11 @@ local function OnPlayerEquipmentChanged()
             end
         end
     end
-    -- If no cloak is equipped or the equipped item is not in the cloaks list, hide the button
     secureButton:Hide()
 end
 
 local function OnSpellcastSucceeded(unit)
-    if unit == "player" and reequipping then
+    if unit == "player" and reequipping and ccuActive then
         ReequipOriginalCloak()
     end
 end
