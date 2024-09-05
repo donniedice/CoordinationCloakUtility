@@ -112,7 +112,6 @@ local function GetAvailableCloakID()
             end
         end
     end
-    print(CCU_PREFIX .. L.NO_USABLE_CLOAK)
     return nil
 end
 

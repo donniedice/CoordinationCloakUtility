@@ -1,5 +1,3 @@
-- Fixed - Added logic to stop further re-equipping attempts if the original cloak is already equipped after the first attempt - [core.lua]
-- Fixed - Improved checks in `ReequipOriginalCloak` to ensure that redundant attempts are prevented once the original cloak is equipped - [core.lua]
-- Updated - Enhanced retry logic to handle more efficient cloak re-equipping after loading screens or teleportation events - [core.lua]
-- Updated - Refined the `reequipping` and `ccuActive` state handling to improve the flow and prevent conflicts between events - [core.lua]
-- Updated - Refined `PLAYER_ENTERING_WORLD` and `UNIT_SPELLCAST_SUCCEEDED` event triggers to prevent unnecessary cloak re-equipping - [core.lua]
+- Fixed - Double 'No Usable Cloak' output - [core.lua]
+
+- Removed - Unneeded [MakeMacro.gif] - [/images]
