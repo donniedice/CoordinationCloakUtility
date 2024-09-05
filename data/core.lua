@@ -53,8 +53,18 @@ local L = {
 -- Version Number
 local VersionNumber = string.format("%s%s|r", "|cff8080ff", C_AddOns.GetAddOnMetadata("CoordinationCloakUtility", "Version"))
 
+-- Function to notify if combat is active
+local function NotifyCombatLockdown()
+    print(CCU_PREFIX .. L.COMBAT_ACTIVE)
+end
+
 -- Function to save the original cloak before equipping the teleportation cloak
 local function SaveOriginalCloak()
+    if inCombat then
+        NotifyCombatLockdown()
+        return
+    end
+
     local slotID = GetInventorySlotInfo("BackSlot")
     local equippedCloakID = GetInventoryItemID("player", slotID)
 
@@ -67,8 +77,30 @@ local function SaveOriginalCloak()
     end
 end
 
+-- Function to create the secure button for manual cloak use
+local function CreateSecureButton()
+    secureButton = CreateFrame("Button", "CloakUseButton", UIParent, "SecureActionButtonTemplate")
+    secureButton:SetSize(64, 64)
+    secureButton:SetPoint("CENTER")
+    
+    secureButton:SetNormalFontObject("GameFontNormalLarge")
+    secureButton:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+    secureButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+    
+    secureButton:RegisterForClicks("AnyUp")
+    secureButton:SetScript("PostClick", function()
+        reequipping = true
+    end)
+    secureButton:Hide()
+end
+
 -- Function to get the first available cloak ID that is not on cooldown
 local function GetAvailableCloakID()
+    if inCombat then
+        NotifyCombatLockdown()
+        return nil
+    end
+
     for _, cloak in ipairs(cloaks) do
         local start, duration = GetItemCooldown(cloak.id)
         if GetItemCount(cloak.id) > 0 then
@@ -84,19 +116,20 @@ local function GetAvailableCloakID()
     return nil
 end
 
--- Function to notify if combat is active
-local function NotifyCombatLockdown()
-    print(CCU_PREFIX .. L.COMBAT_ACTIVE)
-end
-
 -- Function to handle re-equipping the original cloak
 local function ReequipOriginalCloak()
-    if not ccuActive or inCombat then return end -- Guard against unintended triggers or combat
+    if inCombat then
+        NotifyCombatLockdown()
+        return
+    end
+
+    if not ccuActive then return end -- Guard against unintended triggers
 
     if originalCloak then
         local backSlotID = GetInventorySlotInfo("BackSlot")
         local equippedCloakID = GetInventoryItemID("player", backSlotID)
 
+        -- Check if the original cloak is already equipped, and stop further attempts if so
         if equippedCloakID == originalCloak then
             print(CCU_PREFIX .. "|cff00ff00Original cloak is already equipped.|r")
             originalCloak = nil
@@ -106,7 +139,6 @@ local function ReequipOriginalCloak()
             return
         end
 
-        -- Ensure the item exists before attempting to equip it
         if C_Item.DoesItemExistByID(originalCloak) then
             local itemName, itemLink = GetItemInfo(originalCloak)
             if itemName then
@@ -114,11 +146,14 @@ local function ReequipOriginalCloak()
                 print(CCU_PREFIX .. L.REEQUIP_CLOAK .. string.format("%s%s|r", "|cff8080ff", itemName))
 
                 C_Timer.After(1.5, function()
-                    if GetInventoryItemID("player", backSlotID) ~= originalCloak then
+                    local equippedCloakID = GetInventoryItemID("player", backSlotID)  -- Check after first attempt
+                    if equippedCloakID ~= originalCloak then
                         EquipItemByName(itemLink)
                         print(CCU_PREFIX .. "|cffff0000Retrying to re-equip original cloak.|r")
+
                         C_Timer.After(1.5, function()
-                            if GetInventoryItemID("player", backSlotID) ~= originalCloak then
+                            local equippedCloakID = GetInventoryItemID("player", backSlotID)  -- Check after second attempt
+                            if equippedCloakID ~= originalCloak then
                                 EquipItemByName(itemLink)
                                 print(CCU_PREFIX .. "|cffff0000Final attempt to re-equip original cloak.|r")
                             else
@@ -155,7 +190,12 @@ end
 
 -- Function to equip the teleportation cloak and show the button for use
 local function EquipAndUseCloak(cloakID, cloakName)
-    if not ccuActive or inCombat then return end -- Guard against unintended triggers or combat
+    if inCombat then
+        NotifyCombatLockdown()
+        return
+    end
+
+    if not ccuActive then return end -- Guard against unintended triggers
 
     SaveOriginalCloak()
 
@@ -229,6 +269,20 @@ local function HandleCloakUse()
     end
 end
 
+-- Toggle Welcome Message
+local function ToggleWelcomeMessage()
+    CCUDB.showWelcomeMessage = not CCUDB.showWelcomeMessage
+    local status = CCUDB.showWelcomeMessage and CCU_PREFIX .. L.WELCOME_MSG_ENABLED or CCU_PREFIX .. L.WELCOME_MSG_DISABLED
+    print(status)
+end
+
+local function DisplayHelp()
+    print(CCU_PREFIX .. L.HELP_COMMAND)
+    print(CCU_PREFIX .. L.HELP_OPTION_PANEL)
+    print(CCU_PREFIX .. L.HELP_WELCOME)
+    print(CCU_PREFIX .. L.HELP_HELP)
+end
+
 -- Handle Slash Commands
 local function HandleSlashCommands(input)
     input = input:trim():lower()
@@ -247,20 +301,6 @@ local function HandleSlashCommands(input)
     else
         print(CCU_PREFIX .. L.UNKNOWN_COMMAND)
     end
-end
-
--- Toggle Welcome Message
-local function ToggleWelcomeMessage()
-    CCUDB.showWelcomeMessage = not CCUDB.showWelcomeMessage
-    local status = CCUDB.showWelcomeMessage and CCU_PREFIX .. L.WELCOME_MSG_ENABLED or CCU_PREFIX .. L.WELCOME_MSG_DISABLED
-    print(status)
-end
-
-local function DisplayHelp()
-    print(CCU_PREFIX .. L.HELP_COMMAND)
-    print(CCU_PREFIX .. L.HELP_OPTION_PANEL)
-    print(CCU_PREFIX .. L.HELP_WELCOME)
-    print(CCU_PREFIX .. L.HELP_HELP)
 end
 
 -- Event Handlers
@@ -337,8 +377,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         OnSpellcastSucceeded(...)
     elseif event == "PLAYER_REGEN_DISABLED" then
-        OnCombatStart() -- Entering combat
+        OnCombatStart()
     elseif event == "PLAYER_REGEN_ENABLED" then
-        OnCombatEnd() -- Leaving combat
+        OnCombatEnd()
     end
 end)
