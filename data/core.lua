@@ -4,12 +4,15 @@ frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+frame:RegisterEvent("PLAYER_REGEN_DISABLED")  -- Event when combat starts
+frame:RegisterEvent("PLAYER_REGEN_ENABLED")   -- Event when combat ends
 
 local originalCloak = nil
 local reequipping = false
 local secureButton = nil
 local addonLoaded = false
 local ccuActive = false -- State variable to control script execution
+local inCombat = false  -- Track combat state
 
 local cloaks = {
     { id = 65274, name = "|cff9b59b6Cloak of Coordination|r" },
@@ -44,6 +47,7 @@ local L = {
     UNKNOWN_COMMAND = string.format("%sUnknown command. Type %s/ccu help|r for a list of commands.", "|cffffcc00", CCU_PREFIX),
     CLOAK_ON_CD = string.format("%s is equipped but on cooldown.|r", "|cffff0000"),
     NO_USABLE_CLOAK = string.format("%sNo usable teleportation cloak found or all are on cooldown.|r", "|cffff0000"),
+    COMBAT_ACTIVE = "|cffff0000Combat is active. Please try again after leaving combat.|r",
 }
 
 -- Version Number
@@ -80,9 +84,14 @@ local function GetAvailableCloakID()
     return nil
 end
 
+-- Function to notify if combat is active
+local function NotifyCombatLockdown()
+    print(CCU_PREFIX .. L.COMBAT_ACTIVE)
+end
+
 -- Function to handle re-equipping the original cloak
 local function ReequipOriginalCloak()
-    if not ccuActive then return end -- Guard against unintended triggers
+    if not ccuActive or inCombat then return end -- Guard against unintended triggers or combat
 
     if originalCloak then
         local backSlotID = GetInventorySlotInfo("BackSlot")
@@ -144,27 +153,9 @@ local function ReequipOriginalCloak()
     secureButton:Hide()
 end
 
--- Function to create the secure button for manual cloak use
-local function CreateSecureButton()
-    secureButton = CreateFrame("Button", "CloakUseButton", UIParent, "SecureActionButtonTemplate")
-    secureButton:SetSize(64, 64)
-    secureButton:SetPoint("CENTER")
-    
-    secureButton:SetNormalFontObject("GameFontNormalLarge")
-    secureButton:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
-    secureButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
-    
-    secureButton:RegisterForClicks("AnyUp")
-    secureButton:SetScript("PostClick", function()
-        reequipping = true
-        -- Do not immediately re-equip, wait for PLAYER_LOGIN, PLAYER_ENTERING_WORLD, or UNIT_SPELLCAST_SUCCEEDED event
-    end)
-    secureButton:Hide()
-end
-
 -- Function to equip the teleportation cloak and show the button for use
 local function EquipAndUseCloak(cloakID, cloakName)
-    if not ccuActive then return end -- Guard against unintended triggers
+    if not ccuActive or inCombat then return end -- Guard against unintended triggers or combat
 
     SaveOriginalCloak()
 
@@ -214,6 +205,11 @@ end
 
 -- Slash command to trigger cloak use
 local function HandleCloakUse()
+    if inCombat then
+        NotifyCombatLockdown()
+        return
+    end
+
     if reequipping then
         print(CCU_PREFIX .. "|cffff0000Reequipping is already in progress. Please wait.|r")
         return
@@ -233,24 +229,14 @@ local function HandleCloakUse()
     end
 end
 
--- Toggle Welcome Message
-local function ToggleWelcomeMessage()
-    CCUDB.showWelcomeMessage = not CCUDB.showWelcomeMessage
-    local status = CCUDB.showWelcomeMessage and CCU_PREFIX .. L.WELCOME_MSG_ENABLED or CCU_PREFIX .. L.WELCOME_MSG_DISABLED
-   
-    print(status)
-end
-
-local function DisplayHelp()
-    print(CCU_PREFIX .. L.HELP_COMMAND)
-    print(CCU_PREFIX .. L.HELP_OPTION_PANEL)
-    print(CCU_PREFIX .. L.HELP_WELCOME)
-    print(CCU_PREFIX .. L.HELP_HELP)
-end
-
 -- Handle Slash Commands
 local function HandleSlashCommands(input)
     input = input:trim():lower()
+
+    if inCombat then
+        NotifyCombatLockdown()
+        return
+    end
 
     if input == "" then
         HandleCloakUse()
@@ -261,6 +247,20 @@ local function HandleSlashCommands(input)
     else
         print(CCU_PREFIX .. L.UNKNOWN_COMMAND)
     end
+end
+
+-- Toggle Welcome Message
+local function ToggleWelcomeMessage()
+    CCUDB.showWelcomeMessage = not CCUDB.showWelcomeMessage
+    local status = CCUDB.showWelcomeMessage and CCU_PREFIX .. L.WELCOME_MSG_ENABLED or CCU_PREFIX .. L.WELCOME_MSG_DISABLED
+    print(status)
+end
+
+local function DisplayHelp()
+    print(CCU_PREFIX .. L.HELP_COMMAND)
+    print(CCU_PREFIX .. L.HELP_OPTION_PANEL)
+    print(CCU_PREFIX .. L.HELP_WELCOME)
+    print(CCU_PREFIX .. L.HELP_HELP)
 end
 
 -- Event Handlers
@@ -295,7 +295,7 @@ local function OnPlayerEnteringWorld()
 end
 
 local function OnPlayerEquipmentChanged()
-    if not ccuActive then return end -- Guard against unintended triggers
+    if not ccuActive or inCombat then return end -- Guard against unintended triggers or combat
 
     local backSlotID = GetInventorySlotInfo("BackSlot")
     local equippedCloakID = GetInventoryItemID("player", backSlotID)
@@ -317,6 +317,15 @@ local function OnSpellcastSucceeded(unit)
     end
 end
 
+-- Combat state handlers
+local function OnCombatStart()
+    inCombat = true
+end
+
+local function OnCombatEnd()
+    inCombat = false
+end
+
 -- Register events
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
@@ -327,5 +336,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
         OnPlayerEnteringWorld()
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         OnSpellcastSucceeded(...)
+    elseif event == "PLAYER_REGEN_DISABLED" then
+        OnCombatStart() -- Entering combat
+    elseif event == "PLAYER_REGEN_ENABLED" then
+        OnCombatEnd() -- Leaving combat
     end
 end)
