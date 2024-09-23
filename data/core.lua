@@ -11,10 +11,6 @@ frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-<<<<<<< Updated upstream
-frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Event when combat starts
-frame:RegisterEvent("PLAYER_REGEN_ENABLED")  -- Event when combat ends
-=======
 frame:RegisterEvent("PLAYER_REGEN_DISABLED")  -- Event when combat starts
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")   -- Event when combat ends
 frame:RegisterEvent("BAG_UPDATE_DELAYED")     -- Handle inventory changes
@@ -113,7 +109,7 @@ local function CreateSecureButton()
         teleportInProgress = true
         print(CCU_PREFIX .. L.TELEPORTATION_IN_PROGRESS)
     end)
-    secureButton:Hide() -- Button should be hidden by default
+    secureButton:Hide()
 end
 
 -- Function to format time in hours, minutes, and seconds with highlight and info colors
@@ -156,15 +152,6 @@ local function UpdateUsableCloaks()
         else
             usableCloaks[cloakID] = nil
         end
-=======
-    local timeStr = ""
-    if hours > 0 then
-        timeStr = string.format("%s%d|r%s hr %s%02d|r%s min %s%02d|r%s sec", colors.highlight, hours, colors.info, colors.highlight, mins, colors.info, colors.highlight, secs, colors.info)
-    elseif mins > 0 then
-        timeStr = string.format("%s%d|r%s min %s%02d|r%s sec", colors.highlight, mins, colors.info, colors.highlight, secs, colors.info)
-    else
-        timeStr = string.format("%s%d|r%s sec", colors.highlight, secs, colors.info)
->>>>>>> Stashed changes
     end
 end
 
@@ -196,7 +183,6 @@ local function InitializeCloaksOnLogin()
                 -- Store the cloak ID and link
                 local itemLink = select(2, GetItemInfo(cloakID))
                 usableCloaks[cloakID] = itemLink
-                print("Initialized cloak on login:", cloakID, itemLink)
             end
             -- All cloaks have been initialized
             if pendingItems == 0 then
@@ -237,7 +223,6 @@ local function InitializeCloaksAfterTeleport()
                 -- Store the cloak ID and link
                 local itemLink = select(2, GetItemInfo(cloakID))
                 usableCloaks[cloakID] = itemLink
-                print("Initialized cloak after teleport:", cloakID, itemLink)
             end
             -- All cloaks have been initialized
             if pendingItems == 0 then
@@ -275,11 +260,9 @@ local function HandleBackSlotItem()
 
     local backSlotID = GetInventorySlotInfo("BackSlot")
     local equippedCloakID = GetInventoryItemID("player", backSlotID)
-    print("HandleBackSlotItem - Equipped Cloak ID:", equippedCloakID)
 
     -- Check if a teleportation cloak is equipped
     if equippedCloakID and usableCloaks[equippedCloakID] then
-        print("Teleportation cloak detected:", usableCloaks[equippedCloakID])
         -- Save original cloak if not already saved
         if not originalCloak then
             originalCloak = CCUDB.lastEquippedCloak or nil
@@ -305,13 +288,11 @@ local function HandleBackSlotItem()
             secureButton:SetAttribute("item", itemLink)
             secureButton:SetNormalTexture(GetItemIcon(equippedCloakID))
             secureButton:Show()
-            print("Secure button shown for cloak:", itemLink)
         else
             -- Cloak is on cooldown, hide the button
             local remainingTime = FormatTime(remaining)
             print(CCU_PREFIX .. string.format(L.CLOAK_ON_CD, itemLink, remainingTime))
             secureButton:Hide()
-            print("Secure button hidden due to cooldown.")
         end
 
         return
@@ -321,7 +302,6 @@ local function HandleBackSlotItem()
     print(CCU_PREFIX .. L.CLOAK_UNEQUIPPED)
     if secureButton:IsShown() then
         secureButton:Hide()
-        print("Secure button hidden as no teleportation cloak is equipped.")
     end
     teleportInProgress = false
 end
@@ -348,7 +328,6 @@ local function ReequipOriginalCloak()
 
     local backSlotID = GetInventorySlotInfo("BackSlot")
     local equippedCloakID = GetInventoryItemID("player", backSlotID)
-    print("ReequipOriginalCloak - Equipped Cloak ID:", equippedCloakID)
 
     if equippedCloakID == originalCloak or not originalCloak then
         if originalCloak then
@@ -364,7 +343,6 @@ local function ReequipOriginalCloak()
                 if not originalCloakLink then
                     waitingForItemInfo = true
                     pendingAction = ReequipOriginalCloak
-                    print("Waiting for item info to re-equip original cloak.")
                     return
                 end
                 EquipItemByName(originalCloak)
@@ -373,21 +351,17 @@ local function ReequipOriginalCloak()
                 reEquipStartTime = GetTime()
                 -- Register for equipment change event
                 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-                print("Attempting to re-equip original cloak.")
             else
                 -- Check if timeout has been reached
                 if GetTime() - reEquipStartTime >= reEquipTimeout then
                     print(CCU_PREFIX .. L.REEQUIP_FAILED)
                     frame:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")  -- Unregister here
                     ResetCloakProcess()
-                else
-                    print("Re-equip attempt in progress. Timeout in:", reEquipTimeout - (GetTime() - reEquipStartTime), "seconds.")
                 end
             end
         else
             -- Player is in loading screen, set flag to attempt re-equip after
             waitingToReequip = true
-            print("Player is in loading screen. Will attempt to re-equip after loading.")
         end
     end
 end
@@ -404,7 +378,6 @@ local function GetAvailableCloakID()
         if not GetItemInfo(cloakID) then
             waitingForItemInfo = true
             pendingAction = HandleCloakUse
-            print("Item info not loaded for cloak ID:", cloakID)
             return nil, nil
         end
 
@@ -467,7 +440,6 @@ local function EquipAndUseCloak(cloakID, cloakLink)
     secureButton:SetAttribute("item", cloakLink)
     secureButton:SetNormalTexture(GetItemIcon(cloakID))
     secureButton:Show()
-    print("Secure button shown for cloak:", cloakLink)
 end
 
 -- =====================================================================================
@@ -485,7 +457,6 @@ local function HandleCloakUse()
     if not (cloaksInitializedOnLogin or cloaksInitializedAfterTeleport) then
         waitingForItemInfo = true
         pendingAction = HandleCloakUse
-        print("Cloaks not initialized yet. Waiting for item info.")
         return
     end
 
@@ -517,57 +488,20 @@ end
 local function HandleSlashCommands(input)
     input = input:trim():lower()
 
-    local backSlotID = GetInventorySlotInfo("BackSlot")
-    local equippedCloakID = GetInventoryItemID("player", backSlotID)
-    print("HandleBackSlotItem - Equipped Cloak ID:", equippedCloakID)
-
-    -- Check if a teleportation cloak is equipped
-    if equippedCloakID and usableCloaks[equippedCloakID] then
-        print("Teleportation cloak detected:", usableCloaks[equippedCloakID])
-        -- Save original cloak if not already saved
-        if not originalCloak then
-            originalCloak = CCUDB.lastEquippedCloak or nil
-            if originalCloak == equippedCloakID then
-                originalCloak = nil  -- Avoid saving the teleportation cloak as the original cloak
-            end
-            if originalCloak then
-                local originalCloakLink = select(2, GetItemInfo(originalCloak))
-                print(CCU_PREFIX .. L.ORIGINAL_CLOAK_SAVED .. (originalCloakLink or "Unknown Cloak"))
-            else
-                print(CCU_PREFIX .. L.ORIGINAL_CLOAK_SAVED .. "No cloak equipped.")
-            end
-        end
-
-        -- Check if the cloak is off cooldown
-        local start, duration = GetItemCooldown(equippedCloakID)
-        local remaining = math.ceil(start + duration - GetTime())
-        local itemLink = usableCloaks[equippedCloakID]
-        if duration == 0 then
-            -- Cloak is off cooldown, show the button
-            print(CCU_PREFIX .. itemLink .. L.CLOAK_EQUIPPED)
-            secureButton:SetAttribute("type", "item")
-            secureButton:SetAttribute("item", itemLink)
-            secureButton:SetNormalTexture(GetItemIcon(equippedCloakID))
-            secureButton:Show()
-            print("Secure button shown for cloak:", itemLink)
-        else
-            -- Cloak is on cooldown, hide the button
-            local remainingTime = FormatTime(remaining)
-            print(CCU_PREFIX .. string.format(L.CLOAK_ON_CD, itemLink, remainingTime))
-            secureButton:Hide()
-            print("Secure button hidden due to cooldown.")
-        end
-
+    if inCombat then
+        NotifyCombatLockdown()
         return
     end
 
-    -- No teleportation cloak equipped
-    print(CCU_PREFIX .. L.CLOAK_UNEQUIPPED)
-    if secureButton:IsShown() then
-        secureButton:Hide()
-        print("Secure button hidden as no teleportation cloak is equipped.")
+    if input == "" then
+        HandleCloakUse()
+    elseif input == "welcome" then
+        ToggleWelcomeMessage()
+    elseif input == "help" then
+        DisplayHelp()
+    else
+        print(CCU_PREFIX .. L.UNKNOWN_COMMAND)
     end
-    teleportInProgress = false
 end
 
 -- =====================================================================================
@@ -577,7 +511,6 @@ end
 -- Function to handle re-equip after a delay
 local function AttemptReequipAfterDelay()
     InitializeCloaksAfterTeleport()
-    print("Attempting to re-equip original cloak after delay.")
 end
 
 -- Event handler function
@@ -585,20 +518,17 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         local addonName = ...
         if addonName == "CoordinationCloakUtility" then
-            print("CoordinationCloakUtility addon loaded successfully.")
             CreateSecureButton()
             -- Initialize VersionNumber using the original GetAddOnMetadata
             if GetAddOnMetadata then
                 local version = GetAddOnMetadata("CoordinationCloakUtility", "Version")
                 if version then
                     VersionNumber = colors.highlight .. version .. "|r"
-                    print("Addon version:", VersionNumber)
+                    print(CCU_PREFIX .. L.VERSION .. VersionNumber)
                 else
-                    print("Version metadata not found.")
                     VersionNumber = "Unknown"
                 end
             else
-                print("Error: GetAddOnMetadata is not available.")
                 VersionNumber = "Unknown"
             end
         end
@@ -660,11 +590,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "PLAYER_REGEN_DISABLED" then
         inCombat = true
         secureButton:Hide()
-        print("Entered combat. Secure button hidden.")
     elseif event == "PLAYER_REGEN_ENABLED" then
         inCombat = false
         HandleBackSlotItem()
-        print("Left combat. Re-evaluating cloak status.")
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID = ...
         if waitingForItemInfo and pendingAction then
