@@ -61,7 +61,6 @@
 - **No Usable Cloaks Found**: Informs you if no teleportation cloaks are available or all are on cooldown.
 - **Item Info Unavailable**: Waits for item data to load before proceeding.
 - **Combat Restrictions**: Notifies you if actions are attempted during combat.
-- **Failed Cloak Equip/Re-Equip**: Attempts retries and informs you if manual intervention is needed.
 - **Cooldown Notifications**: Alerts you to remaining cooldown times.
 - **Manual Cloak Swapping**: Handles cloak swaps even when done manually.
 - **Interrupted Teleportation**: Detects interruptions and adjusts accordingly.

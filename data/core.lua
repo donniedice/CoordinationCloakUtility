@@ -1,5 +1,5 @@
 -- =====================================================================================
--- Coordination Cloak Utility Addon
+-- CCU | Coordination Cloak Utility Addon - core.lua
 -- =====================================================================================
 
 -- Create the main frame and register events
