@@ -1,7 +1,8 @@
 ## Interface: 110002
-## Version: v2.0.12
-## Title: - |cff950041C|r|cffffffffoordination|r |cff950041C|r|cffffffffloak|r |cff950041U|r|cfffffffftility!|r - |cff8080ffv2.0.12|r 
+## Version: v3.0.0
+## Title: - |cff950041C|r|cffffffffoordination|r |cff950041C|r|cffffffffloak|r |cff950041U|r|cfffffffftility!|r - |cff8080ffv3.0.0|r 
 ## Notes: Coordination Cloak Made Easy!  |n|r  |cff950041/equipcoord -|r Use AddOn!  |n|r   |cff950041By Uivi US-BleedingHollow|r
+>>>>>>> Stashed changes
 ## Author: DonnieDice
 ## Email: donniedice@protonmail.com
 ## SavedVariables: CCUDB

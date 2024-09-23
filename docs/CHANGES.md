@@ -1,3 +1,4 @@
-- Fixed - Double 'No Usable Cloak' output - [core.lua]
-
-- Removed - Unneeded [MakeMacro.gif] - [/images]
+- Added - Final success message in chat after the last attempt to re-equip the cloak, confirming whether the original cloak was successfully re-equipped - [core.lua]
+- Updated - Centralized color management using the `colors` table to improve consistency across all output messages - [core.lua]
+- Updated - Refined `ReequipOriginalCloak` function to ensure the final check outputs success or failure in chat - [core.lua]
+- Updated - Applied dynamic colorization to cloak names in the `cloaks` table for better consistency and readability - [core.lua]
