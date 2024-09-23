@@ -11,6 +11,10 @@ frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+<<<<<<< Updated upstream
+frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Event when combat starts
+frame:RegisterEvent("PLAYER_REGEN_ENABLED")  -- Event when combat ends
+=======
 frame:RegisterEvent("PLAYER_REGEN_DISABLED")  -- Event when combat starts
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")   -- Event when combat ends
 frame:RegisterEvent("BAG_UPDATE_DELAYED")     -- Handle inventory changes
@@ -152,6 +156,15 @@ local function UpdateUsableCloaks()
         else
             usableCloaks[cloakID] = nil
         end
+=======
+    local timeStr = ""
+    if hours > 0 then
+        timeStr = string.format("%s%d|r%s hr %s%02d|r%s min %s%02d|r%s sec", colors.highlight, hours, colors.info, colors.highlight, mins, colors.info, colors.highlight, secs, colors.info)
+    elseif mins > 0 then
+        timeStr = string.format("%s%d|r%s min %s%02d|r%s sec", colors.highlight, mins, colors.info, colors.highlight, secs, colors.info)
+    else
+        timeStr = string.format("%s%d|r%s sec", colors.highlight, secs, colors.info)
+>>>>>>> Stashed changes
     end
 end
 
@@ -504,20 +517,57 @@ end
 local function HandleSlashCommands(input)
     input = input:trim():lower()
 
-    if inCombat then
-        NotifyCombatLockdown()
+    local backSlotID = GetInventorySlotInfo("BackSlot")
+    local equippedCloakID = GetInventoryItemID("player", backSlotID)
+    print("HandleBackSlotItem - Equipped Cloak ID:", equippedCloakID)
+
+    -- Check if a teleportation cloak is equipped
+    if equippedCloakID and usableCloaks[equippedCloakID] then
+        print("Teleportation cloak detected:", usableCloaks[equippedCloakID])
+        -- Save original cloak if not already saved
+        if not originalCloak then
+            originalCloak = CCUDB.lastEquippedCloak or nil
+            if originalCloak == equippedCloakID then
+                originalCloak = nil  -- Avoid saving the teleportation cloak as the original cloak
+            end
+            if originalCloak then
+                local originalCloakLink = select(2, GetItemInfo(originalCloak))
+                print(CCU_PREFIX .. L.ORIGINAL_CLOAK_SAVED .. (originalCloakLink or "Unknown Cloak"))
+            else
+                print(CCU_PREFIX .. L.ORIGINAL_CLOAK_SAVED .. "No cloak equipped.")
+            end
+        end
+
+        -- Check if the cloak is off cooldown
+        local start, duration = GetItemCooldown(equippedCloakID)
+        local remaining = math.ceil(start + duration - GetTime())
+        local itemLink = usableCloaks[equippedCloakID]
+        if duration == 0 then
+            -- Cloak is off cooldown, show the button
+            print(CCU_PREFIX .. itemLink .. L.CLOAK_EQUIPPED)
+            secureButton:SetAttribute("type", "item")
+            secureButton:SetAttribute("item", itemLink)
+            secureButton:SetNormalTexture(GetItemIcon(equippedCloakID))
+            secureButton:Show()
+            print("Secure button shown for cloak:", itemLink)
+        else
+            -- Cloak is on cooldown, hide the button
+            local remainingTime = FormatTime(remaining)
+            print(CCU_PREFIX .. string.format(L.CLOAK_ON_CD, itemLink, remainingTime))
+            secureButton:Hide()
+            print("Secure button hidden due to cooldown.")
+        end
+
         return
     end
 
-    if input == "" then
-        HandleCloakUse()
-    elseif input == "welcome" then
-        ToggleWelcomeMessage()
-    elseif input == "help" then
-        DisplayHelp()
-    else
-        print(CCU_PREFIX .. L.UNKNOWN_COMMAND)
+    -- No teleportation cloak equipped
+    print(CCU_PREFIX .. L.CLOAK_UNEQUIPPED)
+    if secureButton:IsShown() then
+        secureButton:Hide()
+        print("Secure button hidden as no teleportation cloak is equipped.")
     end
+    teleportInProgress = false
 end
 
 -- =====================================================================================
