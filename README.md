@@ -1,52 +1,101 @@
 # Coordination Cloak Utility
 
 ## Overview
-**Coordination Cloak Utility** enhances your experience using the Cloak of Coordination and similar teleportation cloaks in World of Warcraft by automatically managing your cloak gear swaps. It equips the teleportation cloak before use and then re-equips your original cloak afterward, streamlining the process during gameplay.
+
+**Coordination Cloak Utility** simplifies the use of teleportation cloaks in World of Warcraft by automating gear swaps. It equips your teleportation cloak before use and re-equips your original cloak afterward, enhancing gameplay efficiency.
 
 ---
 
 ## Features
-- **Automatic Detection:** Automatically detects and equips the appropriate teleportation cloak based on your faction and available cloaks in your inventory.
-- **Auto Re-Equip:** After teleportation, the addon automatically re-equips your original cloak to ensure you're always geared properly.
-- **Simple Command:** Use `/ccu` to trigger the cloak swap. The addon will handle the rest.
-- **On-Screen Button:** A button appears when a teleportation cloak is equipped, enabling you to initiate the teleportation cast and automatically re-equip the original cloak afterward.
 
----
+- **Automatic Cloak Detection**
+  - Detects all teleportation cloaks in your inventory, including:
+    - [Cloak of Coordination](https://www.wowhead.com/item=65360)
+    - [Wrap of Unity](https://www.wowhead.com/item=63206)
+    - [Shroud of Cooperation](https://www.wowhead.com/item=63352)
+    - And more.
 
-## Compatibility
-- **The War Within**
+- **Seamless Cloak Swapping**
+  - **Auto-Equip**: Saves your original cloak and equips the teleportation cloak when using `/ccu` or equipping manually.
+  - **Auto Re-Equip**: Re-equips your original cloak after teleportation.
+
+- **On-Screen Teleportation Button**
+  - Appears when a teleportation cloak is equipped.
+  - **Single Click Teleport**: Click to cast teleportation; the addon handles cloak swaps automatically.
+  - **Cooldown Alerts**: Notifies you if the cloak is on cooldown, displaying remaining time.
+
+- **User-Friendly Commands**
+  - `/ccu`: Initiates cloak swap and displays teleportation button.
+  - `/ccu help`: Shows help information.
+  - `/ccu welcome`: Toggles the welcome message.
+
+- **Combat Compliance**
+  - Avoids gear swaps or UI changes during combat, notifying you if action is restricted.
 
 ---
 
 ## Installation
-1. Download the addon from [CurseForge](https://legacy.curseforge.com/wow/addons/ccu-coordination-cloak-utility), [GitHub](https://github.com/donniedice/CoordinationCloakUtility), or [Wago.io](#).
-2. Extract the file to your World of Warcraft `Interface/AddOns` directory:
+
+1. **Download** the addon from:
+   - [CurseForge](https://legacy.curseforge.com/wow/addons/ccu-coordination-cloak-utility)
+   - [GitHub](https://github.com/donniedice/CoordinationCloakUtility)
+   - [Wago.io](#)
+
+2. **Extract** to your WoW `Interface/AddOns` directory:
    - For **Retail**: `World of Warcraft/_retail_/Interface/AddOns`
-3. Restart World of Warcraft and enable the addon in the AddOns menu.
+
+3. **Restart WoW** and enable the addon in the AddOns menu.
+
+---
+
+## Usage
+
+- **Initiate Cloak Utility**: Type `/ccu` in chat.
+- **Access Help**: Type `/ccu help`.
+- **Toggle Welcome Message**: Type `/ccu welcome`.
+
+---
+
+## Error Handling
+
+- **No Usable Cloaks Found**: Informs you if no teleportation cloaks are available or all are on cooldown.
+- **Item Info Unavailable**: Waits for item data to load before proceeding.
+- **Combat Restrictions**: Notifies you if actions are attempted during combat.
+- **Failed Cloak Equip/Re-Equip**: Attempts retries and informs you if manual intervention is needed.
+- **Cooldown Notifications**: Alerts you to remaining cooldown times.
+- **Manual Cloak Swapping**: Handles cloak swaps even when done manually.
+- **Interrupted Teleportation**: Detects interruptions and adjusts accordingly.
+- **Post-Teleport Combat**: Waits until combat ends to re-equip original cloak if needed.
 
 ---
 
 ## Support the Project
 
-### ☕️ Buy Me a Coffee
-If you found this project helpful or enjoyable, you can support my work by buying me a coffee. Your support helps keep this project going and motivates me to create more useful addons!
+If you find this addon helpful:
 
-[![Buy Me a Coffee](https://img.shields.io/badge/☕️-Buy%20Me%20a%20Coffee-orange?style=flat-square&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/donniedice)
+- **Buy Me a Coffee**: [☕️ Donate](https://www.buymeacoffee.com/donniedice)
+- **Donate via CashApp**: [💸 Donate](https://bit.ly/3fyxxSU)
+- **Star on GitHub**: [⭐️ CoordinationCloakUtility](https://github.com/donniedice/CoordinationCloakUtility)
+- **Share** with friends and guildmates!
 
-### Your Support Helps:
-- 🛠️ Maintain and improve the project.
-- 🚀 Add new features and enhance existing ones.
-- 🐛 Fix bugs and improve stability.
-- 📚 Provide detailed documentation and guides.
+---
 
-Thank you for your support! 🙏
+## Feedback and Contributions
 
-### 💸 Other Ways to Support:
-[![Donate via CashApp](https://img.shields.io/static/v1?label=Donate&message=CashApp&color=brightgreen)](https://bit.ly/3fyxxSU)
+Your feedback is valuable! If you encounter any issues or have suggestions:
 
-### 💬 Stay in Touch:
-- Follow me on [GitHub](https://github.com/donniedice) 🐙
+- **Report Issues**: [GitHub Issues](https://github.com/donniedice/CoordinationCloakUtility/issues)
+- **Contribute**: Submit a pull request on GitHub.
+- **Contact**: Reach out via GitHub.
 
-### ⭐️ Show Your Support:
-- Star this project on [GitHub](https://github.com/donniedice/CoordinationCloakUtility) ⭐️
-- Share it with your friends and colleagues 📢
+---
+
+## License
+
+This project is licensed under the [MIT License](https://github.com/donniedice/CoordinationCloakUtility/blob/main/LICENSE).
+
+---
+
+## Disclaimer
+
+This addon is provided "as is" without warranty. Use at your own risk. The author is not responsible for any issues arising from its use.
