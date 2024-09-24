@@ -1,3 +1,6 @@
+v3.0.1-------------------------------------------------------------------
+- Fixed - Version number initialization logic to ensure it respects the welcome message toggle - [core.lua]
+
 v3.0.0-------------------------------------------------------------------
 - Added - Final success message in chat after the last attempt to re-equip the cloak, confirming whether the original cloak was successfully re-equipped - [core.lua]
 - Added - Updated transparency to `icon.tga` in the images folder - [images/icon.tga]

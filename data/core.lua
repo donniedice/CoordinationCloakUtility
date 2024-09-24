@@ -299,7 +299,8 @@ local function HandleBackSlotItem()
     end
 
     -- No teleportation cloak equipped
-    print(CCU_PREFIX .. L.CLOAK_UNEQUIPPED)
+
+    -- print(CCU_PREFIX .. L.CLOAK_UNEQUIPPED)
     if secureButton:IsShown() then
         secureButton:Hide()
     end
@@ -432,7 +433,7 @@ local function EquipAndUseCloak(cloakID, cloakLink)
         print(CCU_PREFIX .. L.CLOAK_ALREADY_EQUIPPED)
     else
         EquipItemByName(cloakID)
-        print(CCU_PREFIX .. "Equipped teleportation cloak:", cloakID, cloakLink)
+        -- print(CCU_PREFIX .. "Equipped teleportation cloak:", cloakID, cloakLink)
     end
 
     -- Set up and show the secure button
@@ -519,18 +520,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
         local addonName = ...
         if addonName == "CoordinationCloakUtility" then
             CreateSecureButton()
-            -- Initialize VersionNumber using the original GetAddOnMetadata
-            if GetAddOnMetadata then
-                local version = GetAddOnMetadata("CoordinationCloakUtility", "Version")
-                if version then
-                    VersionNumber = colors.highlight .. version .. "|r"
-                    print(CCU_PREFIX .. L.VERSION .. VersionNumber)
-                else
-                    VersionNumber = "Unknown"
-                end
-            else
-                VersionNumber = "Unknown"
-            end
+            -- Initialize VersionNumber using the provided string format
+            VersionNumber = string.format("%s%s|r", "|cff8080ff", C_AddOns.GetAddOnMetadata("CoordinationCloakUtility", "Version"))
+            -- print(CCU_PREFIX .. L.VERSION .. VersionNumber)
         end
     elseif event == "PLAYER_LOGIN" then
         -- Initialize slash command
@@ -610,3 +602,4 @@ frame:SetScript("OnEvent", function(self, event, ...)
         end
     end
 end)
+
