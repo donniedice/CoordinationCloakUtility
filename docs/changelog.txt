@@ -1,3 +1,6 @@
+v3.0.2-------------------------------------------------------------------
+- Fixed - Title in addons menu - [CoordinationCloakUtility.toc]
+
 v3.0.1-------------------------------------------------------------------
 - Fixed - Version number initialization logic to ensure it respects the welcome message toggle - [core.lua]
 

@@ -1,1 +1,1 @@
-- Fixed - Version number initialization logic to ensure it respects the welcome message toggle - [core.lua]
+- Fixed - Title in addons menu - [CoordinationCloakUtility.toc]
