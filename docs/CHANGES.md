@@ -1,1 +1,2 @@
-- Fixed - Title in addons menu - [CoordinationCloakUtility.toc]
+- Fixed - VersionNumber - [CoordinationCloakUtility.toc]
+- Fixed - SlashCommand '/ccu' - [CoordinationCloakUtility.toc]
