@@ -1,3 +1,15 @@
+v3.1.0-------------------------------------------------------------------
+- Fixed - Issue where manually equipping the coordination cloak after the cloak usage process reset did not function properly - [core.lua]
+- Fixed - Removed conditional checks in `HandleBackSlotItem()` that prevented proper detection of cloak changes after reset - [core.lua]
+- Fixed - Prevented misleading "No original cloak to re-equip" message when the original cloak was successfully re-equipped - [core.lua]
+- Fixed - Corrected the logic in `ResetCloakProcess()` to unregister events and reset variables properly - [core.lua]
+- Updated - Improved handling of back slot item changes to ensure consistent functionality when manually equipping the teleportation cloak after a reset - [core.lua]
+- Updated - Ensured `self.originalCloak` is reset appropriately during the reset process to allow correct saving of the original cloak - [core.lua]
+- Updated - Enhanced state management to avoid unnecessary calls to `ReequipOriginalCloak()` after the process has been reset - [core.lua]
+- Updated - Improved event handling to ensure `ReequipOriginalCloak()` is only called when appropriate, preventing redundant re-equip attempts - [core.lua]
+- Updated - Refined the `UNIT_SPELLCAST_SUCCEEDED` event handler to prevent re-equipping the cloak after the process has been reset - [core.lua]
+- Added - Additional debug messages for better clarity during the cloak re-equipping process - [core.lua]
+
 v3.0.3-------------------------------------------------------------------
 - Fixed - VersionNumber - [CoordinationCloakUtility.toc]
 - Fixed - SlashCommand '/ccu' - [CoordinationCloakUtility.toc]
