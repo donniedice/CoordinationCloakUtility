@@ -1,11 +1,12 @@
 v3.1.1-------------------------------------------------------------------
-- Fixed - Issue where `self.originalCloak` was being overwritten during teleportation, preventing proper re-equipping of the original cloak - [core.lua]
-- Updated - Reintroduced `if not self.teleportInProgress then` condition in `HandleBackSlotItem()` to prevent resetting `self.originalCloak` during teleportation - [core.lua]
-- Fixed - Prevented misleading "No original cloak to re-equip" message when the original cloak was successfully re-equipped - [core.lua]
-- Updated - Ensured `self.originalCloak` is preserved throughout the teleportation process for proper re-equipping - [core.lua]
-- Fixed - Corrected the logic in `ResetCloakProcess()` to unregister events and reset variables properly - [core.lua]
-- Updated - Improved event handling to ensure `ReequipOriginalCloak()` is only called when appropriate, preventing redundant re-equip attempts - [core.lua]
-- Added - Additional debug messages for better clarity during the cloak re-equipping process - [core.lua]
+- Updated - ToC file to version 3.1.1 [CoordinationCloakUtility.toc]
+- Updated - `InitializeCloaks` to wait for item information before updating `usableCloaks` [data/core.lua]
+- Updated - Improved reliability of `UpdateUsableCloaks` by adding a delay before fetching item links [data/core.lua]
+- Updated - Improved handling of original cloak initialization in `HandleBackSlotItem` [data/core.lua]
+- Updated - Enhanced event handling to prevent redundant re-equip attempts and ensure `ReequipOriginalCloak()` is only called when appropriate [data/core.lua]
+- Fixed - Overwriting of `self.originalCloak` during teleportation, preventing proper re-equipping [data/core.lua]
+- Fixed - Logic in `ResetCloakProcess()` to properly unregister events and reset variables [data/core.lua]
+- Added - New debug messages for better clarity during cloak re-equipping [data/core.lua]
 
 v3.1.0-------------------------------------------------------------------
 - Fixed - Issue where manually equipping the coordination cloak after the cloak usage process reset did not function properly - [core.lua]
