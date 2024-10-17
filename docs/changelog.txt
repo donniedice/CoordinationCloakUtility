@@ -1,3 +1,13 @@
+v3.1.1-------------------------------------------------------------------
+- Updated - ToC file to version 3.1.1 [CoordinationCloakUtility.toc]
+- Updated - `InitializeCloaks` to wait for item information before updating `usableCloaks` [data/core.lua]
+- Updated - Improved reliability of `UpdateUsableCloaks` by adding a delay before fetching item links [data/core.lua]
+- Updated - Improved handling of original cloak initialization in `HandleBackSlotItem` [data/core.lua]
+- Updated - Enhanced event handling to prevent redundant re-equip attempts and ensure `ReequipOriginalCloak()` is only called when appropriate [data/core.lua]
+- Fixed - Overwriting of `self.originalCloak` during teleportation, preventing proper re-equipping [data/core.lua]
+- Fixed - Logic in `ResetCloakProcess()` to properly unregister events and reset variables [data/core.lua]
+- Added - New debug messages for better clarity during cloak re-equipping [data/core.lua]
+
 v3.1.0-------------------------------------------------------------------
 - Fixed - Issue where manually equipping the coordination cloak after the cloak usage process reset did not function properly - [core.lua]
 - Fixed - Removed conditional checks in `HandleBackSlotItem()` that prevented proper detection of cloak changes after reset - [core.lua]
@@ -6,7 +16,6 @@ v3.1.0-------------------------------------------------------------------
 - Updated - Improved handling of back slot item changes to ensure consistent functionality when manually equipping the teleportation cloak after a reset - [core.lua]
 - Updated - Ensured `self.originalCloak` is reset appropriately during the reset process to allow correct saving of the original cloak - [core.lua]
 - Updated - Enhanced state management to avoid unnecessary calls to `ReequipOriginalCloak()` after the process has been reset - [core.lua]
-- Updated - Improved event handling to ensure `ReequipOriginalCloak()` is only called when appropriate, preventing redundant re-equip attempts - [core.lua]
 - Updated - Refined the `UNIT_SPELLCAST_SUCCEEDED` event handler to prevent re-equipping the cloak after the process has been reset - [core.lua]
 - Added - Additional debug messages for better clarity during the cloak re-equipping process - [core.lua]
 
@@ -139,4 +148,4 @@ v1.0.1-------------------------------------------------------------------
 - Fixed - [release.yml]
 
 v1.0.0-------------------------------------------------------------------
-- Create Repository - Initial Push
+- Created - Repository initial push
