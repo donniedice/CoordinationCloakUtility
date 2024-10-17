@@ -16,7 +16,7 @@ frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Event when combat starts
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")  -- Event when combat ends
-frame:RegisterEvent("BAG_UPDATE_DELAYED")     -- Handle inventory changes
+frame:RegisterEvent("BAG_UPDATE_DELAYED")    -- Handle inventory changes
 frame:RegisterEvent("GET_ITEM_INFO_RECEIVED") -- Handle item info loaded
 
 -- =====================================================================================
@@ -32,9 +32,9 @@ CCU.waitingForItemInfo = false
 CCU.pendingAction = nil
 CCU.cloaksInitialized = false -- Flag to track cloak initialization
 CCU.reEquipAttempted = false -- Flag to track re-equip attempt
-CCU.reEquipStartTime = nil     -- Timestamp when re-equip started
-CCU.reEquipTimeout = 10         -- Timeout duration in seconds
-CCU.reEquipMaxRetries = 3       -- Maximum number of re-equip retries
+CCU.reEquipStartTime = nil    -- Timestamp when re-equip started
+CCU.reEquipTimeout = 10      -- Timeout duration in seconds
+CCU.reEquipMaxRetries = 3    -- Maximum number of re-equip retries
 
 CCU.currentCloakID = nil -- Current equipped cloak ID
 CCU.lastNonTeleportationCloakID = nil -- Last non-teleportation cloak ID
@@ -138,8 +138,7 @@ end
 
 -- Function to update usable cloaks when inventory changes
 function CCU:UpdateUsableCloaks()
-    self.usableCloaks = {} -- Reset usableCloaks
-    local pendingItems = 0
+    self.usableCloaks = {}local pendingItems = 0
     for _, cloakID in ipairs(self.cloaks) do
         if GetItemCount(cloakID) > 0 then
             local itemLink = select(2, GetItemInfo(cloakID))
@@ -149,13 +148,15 @@ function CCU:UpdateUsableCloaks()
                 pendingItems = pendingItems + 1
                 local item = Item:CreateFromItemID(cloakID)
                 item:ContinueOnItemLoad(function()
-                    self.usableCloaks[cloakID] = select(2, GetItemInfo(cloakID))
-                    pendingItems = pendingItems - 1
-                    if pendingItems == 0 and self.waitingForItemInfo and self.pendingAction then
-                        self.waitingForItemInfo = false
-                        self.pendingAction()
-                        self.pendingAction = nil
-                    end
+                    C_Timer.After(0.1, function()  -- Added a slight delay for reliability
+                        self.usableCloaks[cloakID] = select(2, GetItemInfo(cloakID))
+                        pendingItems = pendingItems - 1
+                        if pendingItems == 0 and self.waitingForItemInfo and self.pendingAction then
+                            self.waitingForItemInfo = false
+                            self.pendingAction()
+                            self.pendingAction = nil
+                        end
+                    end)
                 end)
             end
         else
@@ -187,8 +188,8 @@ function CCU:InitializeCloaks()
         local item = Item:CreateFromItemID(cloakID)
         item:ContinueOnItemLoad(function()
             pendingItems = pendingItems - 1
-            if GetItemCount(cloakID) > 0 then
-                local itemLink = select(2, GetItemInfo(cloakID))
+            local itemLink = select(2, GetItemInfo(cloakID))
+            if GetItemCount(cloakID) > 0 and itemLink then
                 self.usableCloaks[cloakID] = itemLink
             end
             if pendingItems == 0 then
@@ -223,6 +224,13 @@ end
 function CCU:HandleBackSlotItem()
     if self.inCombat then return end
 
+    -- Check if cloaks are initialized
+    if not self.cloaksInitialized then
+        self.waitingForItemInfo = true
+        self.pendingAction = function() self:HandleBackSlotItem() end
+        return
+    end
+
     local backSlotID = GetInventorySlotInfo("BackSlot")
     local equippedCloakID = GetInventoryItemID("player", backSlotID)
     self.currentCloakID = equippedCloakID
@@ -238,13 +246,16 @@ function CCU:HandleBackSlotItem()
 
     -- Check if a teleportation cloak is equipped
     if equippedCloakID and self.usableCloaks[equippedCloakID] then
-        -- Always update originalCloak when a teleportation cloak is equipped
-        self.originalCloak = self.lastNonTeleportationCloakID or nil
-        if self.originalCloak and self.originalCloak ~= equippedCloakID then
-            local originalCloakLink = select(2, GetItemInfo(self.originalCloak))
-            print(self.CCU_PREFIX .. self.L.ORIGINAL_CLOAK_SAVED .. (originalCloakLink or "Unknown Cloak"))
-        else
-            print(self.CCU_PREFIX .. self.L.ORIGINAL_CLOAK_SAVED .. "No cloak equipped.")
+        -- Add the condition back to prevent overwriting during teleportation
+        if not self.teleportInProgress then
+            -- Only update originalCloak when not teleporting
+            self.originalCloak = self.lastNonTeleportationCloakID or nil
+            if self.originalCloak and self.originalCloak ~= equippedCloakID then
+                local originalCloakLink = select(2, GetItemInfo(self.originalCloak))
+
+            else
+                print(self.CCU_PREFIX .. self.L.ORIGINAL_CLOAK_SAVED .. "No cloak equipped.")
+            end
         end
 
         -- Check if the cloak is off cooldown
@@ -275,7 +286,7 @@ function CCU:HandleBackSlotItem()
         -- No teleportation cloak equipped
         self.originalCloak = nil -- Reset original cloak if not teleporting
 
-        if not InCombatLockdown() and self.secureButton:IsShown() then
+        if not InCombatLockdown() and self.secureButton and self.secureButton:IsShown() then  -- Check if secureButton exists
             self.secureButton:Hide()
         end
     end
@@ -287,7 +298,7 @@ function CCU:ResetCloakProcess()
     self.originalCloak = nil -- Ensure originalCloak is reset
     self.reEquipAttempted = false
     self.reEquipStartTime = nil
-    if not InCombatLockdown() and self.secureButton:IsShown() then
+    if not InCombatLockdown() and self.secureButton and self.secureButton:IsShown() then  -- Check if secureButton exists
         self.secureButton:Hide()
     end
     print(self.CCU_PREFIX .. self.L.PROCESS_RESET)
@@ -303,8 +314,8 @@ function CCU:ReequipOriginalCloak()
         return
     end
 
-    -- If originalCloak is nil, we shouldn't proceed
-    if not self.originalCloak then
+    -- If originalCloak is nil or invalid, we shouldn't proceed
+    if not self.originalCloak or not GetItemInfo(self.originalCloak) then
         self:ResetCloakProcess()
         return
     end
@@ -333,7 +344,7 @@ function CCU:ReequipOriginalCloak()
 
                 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
             else
-                -- Check if timeout has been reached
+                -- Check if timeout-- Check if timeout has been reached
                 if GetTime() - self.reEquipStartTime >= self.reEquipTimeout then
                     print(self.CCU_PREFIX .. self.L.REEQUIP_FAILED)
                     frame:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")
@@ -346,7 +357,6 @@ function CCU:ReequipOriginalCloak()
         end
     end
 end
-
 
 -- Function to get an available teleportation cloak
 function CCU:GetAvailableCloakID()
@@ -404,7 +414,7 @@ function CCU:EquipAndUseCloak(cloakID, cloakLink)
     if originalCloakLink then
         print(self.CCU_PREFIX .. self.L.ORIGINAL_CLOAK_SAVED .. originalCloakLink)
     else
-        print(self.CCU_PREFIX .. self.L.ORIGINAL_CLOAK_SAVED .. "No cloak equipped.")
+        print(self.CCU_PREFIX .. self.L.ORIGINAL_CLOAK_SAVED .. "No cloak equipped.") -- This might still happen if the original cloak is not yet initialized
     end
 
     if equippedCloakID == cloakID then
@@ -483,94 +493,93 @@ end
 -- Event Handling
 -- =====================================================================================
 
--- Function to handle re-equip after a delay
-function CCU:AttemptReequipAfterDelay()
-    self:InitializeCloaks()
-    if self.teleportInProgress then
-        self:ReequipOriginalCloak()
-    end
-end
-
--- Event handler function
-frame:SetScript("OnEvent", function(self, event, ...)
-    if event == "ADDON_LOADED" then
-        local addonName = ...
+-- Event Dispatch Table
+CCU.events = {
+    ADDON_LOADED = function(self, addonName)
         if addonName == "CoordinationCloakUtility" then
-            CCU:CreateSecureButton()
-            -- Initialize VersionNumber using the provided string format
-            CCU.VersionNumber = string.format("%s %s|r", "|cff8080ff", C_AddOns.GetAddOnMetadata("CoordinationCloakUtility", "Version"))
-            -- print(CCU.CCU_PREFIX .. CCU.L.VERSION .. CCU.VersionNumber)
+            self:CreateSecureButton()
+            self.VersionNumber = string.format("%s %s|r", self.colors.highlight, C_AddOns.GetAddOnMetadata("CoordinationCloakUtility", "Version"))
         end
-    elseif event == "PLAYER_LOGIN" then
-        -- Initialize slash command
+    end,
+
+    PLAYER_LOGIN = function(self)
         SLASH_CCU1 = "/ccu"
-        SlashCmdList["CCU"] = function(input) CCU:HandleSlashCommands(input) end
+        SlashCmdList["CCU"] = function(input) self:HandleSlashCommands(input) end
 
-        -- Initialize database
-        if CCUDB == nil then
-            CCUDB = {}
-        end
-
-        if CCUDB.showWelcomeMessage == nil then
-            CCUDB.showWelcomeMessage = true
-        end
+        -- Initialize Database
+        CCUDB = CCUDB or {}
+        CCUDB.showWelcomeMessage = CCUDB.showWelcomeMessage ~= nil and CCUDB.showWelcomeMessage or true
 
         if CCUDB.showWelcomeMessage then
-            print(CCU.CCU_PREFIX .. CCU.L.WELCOME_MSG)
-            print(CCU.CCU_PREFIX .. CCU.L.VERSION .. CCU.VersionNumber)
+            print(self.CCU_PREFIX .. self.L.WELCOME_MSG)
+            print(self.CCU_PREFIX .. self.L.VERSION .. self.VersionNumber)
         end
 
-        CCU:InitializeCloaks()
+        C_Timer.After(1, function()  -- Delay the cloak handling to give time for initialization
+            self:HandleBackSlotItem()
+        end)
+    end,
 
-        -- Initialize currentCloakID
-        local backSlotID = GetInventorySlotInfo("BackSlot")
-        CCU.currentCloakID = GetInventoryItemID("player", backSlotID)
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        CCU:InitializeCloaks()
+    PLAYER_ENTERING_WORLD = function(self)
+        self:InitializeCloaks()
 
-        if CCU.waitingToReequip and CCU.teleportInProgress then
-            -- Add a 5-second delay before attempting to re-equip
-            C_Timer.After(5, function() CCU:AttemptReequipAfterDelay() end)
+        if self.waitingToReequip and self.teleportInProgress then
+            -- Delay the re-equip to avoid load screen issues
+            C_Timer.After(5, function() self:ReequipOriginalCloak() end)
         end
-    elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-        local slotID = ...
+    end,
+
+    PLAYER_EQUIPMENT_CHANGED = function(self, slotID)
         if slotID == GetInventorySlotInfo("BackSlot") then
-            CCU:HandleBackSlotItem()
+            self:HandleBackSlotItem()
 
-            if CCU.reEquipAttempted and CCU.originalCloak then
-                local backSlotID = GetInventorySlotInfo("BackSlot")
-                local equippedCloakID = GetInventoryItemID("player", backSlotID)
-                if equippedCloakID == CCU.originalCloak then
-                    local originalCloakLink = select(2, GetItemInfo(CCU.originalCloak))
-                    print(CCU.CCU_PREFIX .. CCU.L.REEQUIP_SUCCESS .. (originalCloakLink or "Unknown Cloak"))
-                    CCU:ResetCloakProcess()
-                    -- Unregister the event after re-equipping
+            if self.reEquipAttempted and self.originalCloak then
+                local equippedCloakID = GetInventoryItemID("player", slotID)
+                if equippedCloakID == self.originalCloak then
+                    print(self.CCU_PREFIX .. self.L.REEQUIP_SUCCESS .. (select(2, GetItemInfo(self.originalCloak)) or "Unknown Cloak"))
+                    self:ResetCloakProcess()
                     frame:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")
                 end
             end
         end
-    elseif event == "PLAYER_REGEN_DISABLED" then
-        CCU.inCombat = true
-        if not InCombatLockdown() and CCU.secureButton then
-            CCU.secureButton:Hide()
+    end,
+
+    PLAYER_REGEN_DISABLED = function(self)
+        self.inCombat = true
+        if not InCombatLockdown() and self.secureButton then
+            self.secureButton:Hide()
         end
-    elseif event == "PLAYER_REGEN_ENABLED" then
-        CCU.inCombat = false
-        CCU:HandleBackSlotItem()
-    elseif event == "GET_ITEM_INFO_RECEIVED" then
-        local itemID = ...
-        if CCU.waitingForItemInfo and CCU.pendingAction then
-            CCU.waitingForItemInfo = false
-            CCU.pendingAction()
-            CCU.pendingAction = nil
+    end,
+
+    PLAYER_REGEN_ENABLED = function(self)
+        self.inCombat = false
+        self:HandleBackSlotItem()
+    end,
+
+    GET_ITEM_INFO_RECEIVED = function(self)
+        if self.waitingForItemInfo and self.pendingAction then
+            self.waitingForItemInfo = false
+            self.pendingAction()
+            self.pendingAction = nil
         end
-    elseif event == "BAG_UPDATE_DELAYED" then
-        CCU:UpdateUsableCloaks()
-    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        local unit, _, spellID = ...
-        if unit == "player" and CCU.teleportInProgress then
-            -- Attempt to re-equip immediately
-            CCU:ReequipOriginalCloak()
+    end,
+
+    BAG_UPDATE_DELAYED = function(self)
+        self:UpdateUsableCloaks()
+    end,
+
+    UNIT_SPELLCAST_SUCCEEDED = function(self, unit, _, spellID)
+        if unit == "player" and self.teleportInProgress then
+            self:ReequipOriginalCloak()
         end
+    end
+}
+
+-- =====================================================================================
+-- Main Event Handler
+-- =====================================================================================
+frame:SetScript("OnEvent", function(self, event, ...)
+    if CCU.events[event] then
+        CCU.events[event](CCU, ...)
     end
 end)
