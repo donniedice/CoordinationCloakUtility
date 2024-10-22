@@ -1,3 +1,5 @@
+v3.1.2-------------------------------------------------------------------
+- Updated - ToC for _retail_ - WOW20TH (11.0.5.57171) [ToC.110005]
 v3.1.1-------------------------------------------------------------------
 - Updated - ToC file to version 3.1.1 [CoordinationCloakUtility.toc]
 - Updated - `InitializeCloaks` to wait for item information before updating `usableCloaks` [data/core.lua]
