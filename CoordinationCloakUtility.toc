@@ -1,10 +1,10 @@
-## Interface: 110007
-## Version: v3.1.3
-## Title: |cff950041C|r|cffffffffoordination|r |cff950041C|r|cffffffffloak|r |cff950041U|r|cfffffffftility!|r - |cff8080ffv3.1.3|r 
-## Notes: Coordination Cloak Made Easy!  |n|r  |cff950041/ccu -|r Use AddOn!  |n|r   |cff950041By Uivi US-BleedingHollow|r
+## Interface: 110100
+## Version: v3.1.4
+## Title: |cff950041C|r|cffffffffoordination|r |cff950041C|r|cffffffffloak|r |cff950041U|r|cfffffffftility!|r 
+## Notes: Coordination Cloak Made Easy!  |n|r  |cff950041/ccu -|r Use AddOn!  |n|r   |cff950041DonnieDice|r
 
 ## Author: DonnieDice
-## Email: donniedice@protonmail.com
+## Email: joseph@donniedice.com
 ## SavedVariables: CCUDB
 ## IconTexture: Interface\AddOns\CoordinationCloakUtility\images\icon
 

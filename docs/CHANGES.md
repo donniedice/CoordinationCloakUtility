@@ -1,1 +1,5 @@
-- Updated - ToC for _retail_ - [ToC.110007]
+- Updated - Retail TOC to reflect version 110100 [CoordinationCloakUtility.toc]
+- Updated - Retail BLU version number to v3.1.4 in TOC [CoordinationCloakUtility.toc]
+- Removed - Version number from TOC title (Blizzard added this to the default interface) [CoordinationCloakUtility.toc]
+- Updated - Email address in Retail TOC [CoordinationCloakUtility.toc]
+- Updated - Name in notes to 'donniedice' instead of character name [CoordinationCloakUtility.toc]
